@@ -61,25 +61,20 @@ Attention! All the hex functions have some overhead compared to the rgb function
 * *void **_setResizeCallback_**(**void**(**\***_function_)(*int*, *int*)) - Set a callback function of type _void_ with zero arguments for when the terminal is resized.
 * *char* **_tm_getch_**() A.K.A *char* **_getch_**() - In C only the first one will work. It has *tm_* as a begininning in order to avoid name clashes. In C++ **_getch_** gets defined in the library's namespace so no problems there with name clashes. It can be used to read a character from the terminal without the need for the _enter_ key to be pressed.
 
-
-
-## In-memory character maps ##
-
-
 ## Prepocessor Definitions ##
 
 ### Library settings ###
 * **HANDLE_MAIN** - Should the library handle the main function? Set to yes by default. If you wish to make your own main function you should _#define_ this to 0 before including the library header. The main handles keypress callbacks and resize callbacks. If you do not use it you have to implement those on your own.
 * **USE_IN_MEMORY_CHARACTER_MAPS** - Certain character maps in the form of character arrays can be loaded into memory for ease of use.
 Define this preprocessor directive to 0 if you do not want to use them before including the header. The default value is 1 and no _#define_ statement is needed in order to use them. Here is a list of all the in-memory character maps created:
-
+#### In-memory character maps ####
  * Hatches - *char* **hatch_map**[3], contents: {░, ▒, ▓}
  * Combined table - *char* **table_map**[22], contents: {┌, ┐, └, ┘, │, ─, ├, ┤, ┴, ┬, ┼, ╔, ╗, ╚, ╝, ║, ═, ╠, ╣, ╩, ╦, ╬}
 * **PREDEFINE_CHARACTERS** - Defines macro names for some extended ASCII characters (see [Symbol definitions](#char_defs)). If you want to disable these macros set this to 0 before including the *terminal_manager.h*. Otherwise they will be defined automatically.
 
 * **PREDEFINE_CHARACTERS** - Defines macro names for some change color strings (see [Symbol definitions](#color_defs)). If you want to disable these macros set this to 0 before including the *terminal_manager.h*. Otherwise they will be defined automatically.
 
-###Symbol definitions###
+### Symbol definitions ###
 <a name="char_defs">
 Certain useful ascii character numbers now have names:
 * Hatches
