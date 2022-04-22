@@ -21,6 +21,7 @@
 #include "tm_predefs.h"
 #include "tm_main.h"
 
+
 /* Global variables */
 #if USE_IN_MEMORY_CHARACTER_MAPS
 	#ifdef __cplusplus
