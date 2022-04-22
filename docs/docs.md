@@ -63,12 +63,12 @@ Attention! All the hex functions have some overhead compared to the rgb function
 
 
 
-##In-memory character maps##
+## In-memory character maps ##
 
 
 ## Prepocessor Definitions ##
 
-###Library settings###
+### Library settings ###
 * **HANDLE_MAIN** - Should the library handle the main function? Set to yes by default. If you wish to make your own main function you should _#define_ this to 0 before including the library header. The main handles keypress callbacks and resize callbacks. If you do not use it you have to implement those on your own.
 * **USE_IN_MEMORY_CHARACTER_MAPS** - Certain character maps in the form of character arrays can be loaded into memory for ease of use.
 Define this preprocessor directive to 0 if you do not want to use them before including the header. The default value is 1 and no _#define_ statement is needed in order to use them. Here is a list of all the in-memory character maps created:
@@ -145,7 +145,6 @@ Certain useful ascii character numbers now have names:
  * **AEQ**   - ≈
  * **DEG**   - °
  * **ROOT**  - √
-<\a>
 
 
 All the ANSI colors have a keyword defined for them (you can just directly write these to the output any time to change to the given color):
@@ -191,4 +190,3 @@ All the ANSI colors have a keyword defined for them (you can just directly write
 
 
 * **RST** - reset the text and background to default
-<\a>
