@@ -15,6 +15,7 @@ void resize(int r, int c){
 void initCall(){
 	int r, c;
 	getTerminalSize(&r, &c);
+	printf("%d %d", r, c);
 	if(r < 5 || c < 5){
 		printf("Resize the terminal to a more reasonable size!");
 	}else{

@@ -8,11 +8,13 @@ This will be used to call the callbacks for each key. */
 extern void (*key_callbacks[128])();
 extern void(*resize_callback)(int, int);
 
-extern void initCall();
+void initCall();
 
-extern void setCharCallback(const char character, void(*function)(void));
-/*extern void setResizeCallback(void(*function)(int, int);*/
+void setCharCallback(const char character, void(*function)(void));
+/*void setResizeCallback(void(*function)(int, int);
+*/
 
+void setResizeCallback(void(*function)(int, int));
 #endif
 
 #endif

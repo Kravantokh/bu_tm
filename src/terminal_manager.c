@@ -6,6 +6,7 @@
 	#include <sys/ioctl.h>
 	#include <unistd.h>
 	#include <stdlib.h>
+	#include <termios.h>
 #elif _WIN32
 	#include <windows.h>
 #else
@@ -21,15 +22,8 @@
 	DWORD oldMode, newMode;
 #elif __linux__
 	struct winsize tm_winsize;
-
 	static struct termios oldt, newt;
-	newt = oldt;
-	newt.c_lflag &= ~(ICANON);
-	tcsetattr( STDIN_FILENO, TCSANOW, &newt);
-	newt.c_lflag &= ~(ICANON | ECHO);
-
 #endif
-
 /* Global variable initializations */
 #if USE_IN_MEMORY_CHARACTER_MAPS
 
@@ -78,6 +72,11 @@ void initTerminalManager(){
 		SetConsoleMode(tm_outputHandle, newMode);
 
 	#elif __linux__
+		tcgetattr( STDIN_FILENO, &oldt);
+		newt = oldt;	
+		newt.c_lflag &= ~(ICANON);          
+		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
+		newt.c_lflag &= ~(ICANON | ECHO);
 		ioctl(STDOUT_FILENO, TIOCGWINSZ, &tm_winsize);
 	#endif
 }
@@ -212,7 +211,8 @@ char tm_getch(){
 	else return 0;
 
 	#elif __linux__
-
+		char c = getchar();
+		return c;
 	#endif
 }
 
