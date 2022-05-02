@@ -3,8 +3,7 @@
 
  Currently supported platforms are: Linux, Windows 10. The library has functions to manage terminal size detection, resizing, text and background color changing and provides many preprocessor directives and definitions to help with the use of the extended ASCII character set.
  
-[Consider reading the docs!](/docs/docs.md)
-
+[Consider reading the docs!](/docs/html/index.html)
  The given example code run under windows from the standard command prompt (the example in the picture is from an older version of the library).
 
 ![Example code run on windows](/readme_files/win_test.png)

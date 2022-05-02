@@ -1,6 +1,6 @@
-/* Tamás Benő 4/22/2022 */
 #include <terminal_manager.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #ifdef __linux__
 	#include <sys/ioctl.h>
@@ -25,7 +25,7 @@
 	static struct termios oldt, newt;
 #endif
 /* Global variable initializations */
-#if USE_IN_MEMORY_CHARACTER_MAPS
+#if TM_USE_IN_MEMORY_CHARACTER_MAPS
 
 	#ifdef __cplusplus
 	namespace bu{
@@ -43,6 +43,14 @@
 	#endif
 #endif
 
+#if TM_HANDLE_MAIN
+/* A pointer array for all the possible pressable ASCII keys.
+This will be used to call the callbacks for each key. */
+void (*key_callbacks[128])();
+void (*resize_callback)(int, int);
+void (*any_char_callback)(char);
+#endif
+
 int tm_run = 1;
 
 /* Functions */
@@ -58,7 +66,7 @@ namespace tm{
 extern "C" {
 #endif
 
-void initTerminalManager(){
+void tm_init(){
 	#ifdef _WIN32
 		/* Get some infom and set handles */
 		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &tm_csbi);
@@ -73,8 +81,8 @@ void initTerminalManager(){
 
 	#elif __linux__
 		tcgetattr( STDIN_FILENO, &oldt);
-		newt = oldt;	
-		newt.c_lflag &= ~(ICANON);          
+		newt = oldt;
+		newt.c_lflag &= ~(ICANON);
 		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
 		newt.c_lflag &= ~(ICANON | ECHO);
 		ioctl(STDOUT_FILENO, TIOCGWINSZ, &tm_winsize);
@@ -88,7 +96,7 @@ void endTerminalManager(){
 	#endif
 }
 
-void getTerminalSize(int* rows, int* columns){
+void tm_getTerminalSize(int* rows, int* columns){
 	#ifdef _WIN32
 		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &tm_csbi);
 		*rows = tm_csbi.srWindow.Bottom - tm_csbi.srWindow.Top + 1;
@@ -99,10 +107,10 @@ void getTerminalSize(int* rows, int* columns){
 	#endif
 }
 
-void moveTerminalCursorTo(int row, int column){
+void tm_moveCursor(int row, int column){
 	printf("\033[%d;%dH", row, column);
 }
-void clearTerminal(){
+void tm_clear(){
 	#ifdef _WIN32
 		system("cls");
 	#elif __linux__
@@ -110,7 +118,7 @@ void clearTerminal(){
 	#endif
 }
 
-void wait(unsigned int t){
+void tm_wait(unsigned int t){
 	#ifdef _WIN32
 		Sleep(1000 * t); /*from seconds to milliseconds*/
 	#elif __linux__
@@ -118,7 +126,7 @@ void wait(unsigned int t){
 	#endif
 }
 
-void waitus(unsigned int t){
+void tm_waitus(unsigned int t){
 	#ifdef _WIN32
 	/* Apparently windows has no uslepp function, so it has to be defined*/
 	HANDLE timer;
@@ -136,28 +144,28 @@ void waitus(unsigned int t){
 }
 
 /*Set rgb color for true color terminals*/
-void store_rgbFG(char* s, int red, int green, int blue){
+void tm_store_rgbFG(char* s, int red, int green, int blue){
 	sprintf(s, "\x1b[38;2;%d;%d;%dm", red, green, blue);
 }
 
-void store_rgbBG(char* s, int red, int green, int blue){
+void tm_store_rgbBG(char* s, int red, int green, int blue){
 	sprintf(s, "\x1b[48;2;%d;%d;%dm", red, green, blue);
 }
 
-void resetColor(){
-	printf(RST);
+void tm_resetColor(){
+	printf("\x1B[0m");
 }
 
-void rgbFG(int red, int green, int blue){
+void tm_rgbFG(int red, int green, int blue){
 	printf("\x1b[38;2;%d;%d;%dm", red, green, blue);
 }
 
-void rgbBG(int red, int green, int blue){
+void tm_rgbBG(int red, int green, int blue){
 	printf("\x1b[48;2;%d;%d;%dm", red, green, blue);
 }
 
 /* Get text color string into the given string. It should be at least 22 characters long. */
-void store_hexFG(char* s, const char* val){
+void tm_store_hexFG(char* s, const char* val){
 	int r, g, b;
 
 	if(*val == '#')
@@ -168,7 +176,7 @@ void store_hexFG(char* s, const char* val){
 	sprintf(s, "\x1b[38;2;%d;%d;%dm", r, g, b);
 }
 /* Get background color string into the given string. It should be at least 22 characters long. */
-void store_hexBG(char* s, const char* val){
+void tm_store_hexBG(char* s, const char* val){
 	int r, g, b;
 
 	if(*val == '#')
@@ -180,23 +188,23 @@ void store_hexBG(char* s, const char* val){
 }
 
 /* Write to the console the requiered string to switch text color to the given HEX color */
-void hexFG(const char* val){
+void tm_hexFG(const char* val){
 	int r, g, b;
 	if(*val == '#')
 		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
 	else
 		sscanf(val, "%2x%2x%2x", &r, &g, &b);
-	rgbFG(r, g, b);
+	tm_rgbFG(r, g, b);
 
 }
 /* Write to the console the requiered string to switch background color to the given HEX color */
-void hexBG(const char* val){
+void tm_hexBG(const char* val){
 	int r, g, b;
 	if(*val == '#')
 		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
 	else
 		sscanf(val, "%2x%2x%2x", &r, &g, &b);
-	rgbBG(r, g, b);
+	tm_rgbBG(r, g, b);
 }
 
 char tm_getch(){
@@ -225,40 +233,47 @@ char getch(){
 #endif
 
 
-#if HANDLE_MAIN
+#if TM_HANDLE_MAIN
 
 void (*key_callbacks[128])() = {0};
-void(*resize_callback)(int width, int height) = 0;
+void (*resize_callback)(int width, int height) = 0;
+void (*any_char_callback)(char) = 0;
 
-void setCharCallback(const char character, void(*function)(void)){
+void tm_bindKey(const char character, void(*function)(void)){
 	if(character >= 0 && character < 128){
 		key_callbacks[(int)character] = function;
 	}
 }
 
+/*This function is not part of the API of the library, thus not in the header*/
 void callCharCallback(char character){
 	if(character >= 0 && character < 128){
 		if(key_callbacks[(int)character] != 0)
 			key_callbacks[(int)character]();
+		if(any_char_callback != 0)
+			any_char_callback(character);
 	}
 }
 
 void setResizeCallback(void(*function)(int, int)){
 	resize_callback = function;
 }
+void tm_bindToAnyKeypress(void(*function)(char)){
+	any_char_callback = function;
+}
 
 
 int main(int argc, char* argv[]){
 	int tm_height, tm_width, tm_previous_width, tm_previous_height;
-	initTerminalManager();
-	initCall();
-	getTerminalSize(&tm_height, &tm_width);
+	tm_init();
+	tm_initCall();
+	tm_getTerminalSize(&tm_height, &tm_width);
 	tm_previous_width = tm_height;
 	tm_previous_height = tm_width;
 
 	while(tm_run){
-		waitus(1000);
-		getTerminalSize(&tm_height, &tm_width);
+		tm_waitus(1000);
+		tm_getTerminalSize(&tm_height, &tm_width);
 		if(tm_height != tm_previous_width || tm_width != tm_previous_height){
 			if(resize_callback != 0)
 				resize_callback(tm_height, tm_width);

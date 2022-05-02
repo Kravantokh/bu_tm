@@ -1,9 +1,12 @@
+/** \file tm_predefs.h
+* \brief A separate header for some macros.
+*/
 #ifndef __BU_TERMINAL_MANAGER_CHAR_DEFS__
 #define __BU_TERMINAL_MANAGER_CHAR_DEFS__
 
 /* Extended ascii charcters */
 
-#if PREDEFINE_CHARACTERS
+#if TM_PREDEFINE_CHARACTERS
 /* Hatches */
 #define HATCH_1 176
 #define HATCH_2 177
@@ -70,7 +73,7 @@
 
 #endif
 
-#if PREDEFINE_COLORNAMES
+#if TM_PREDEFINE_COLORNAMES
 
 /****  Color names ****/
 #define FG_BLK "\x1b[30m"
