@@ -50,9 +50,9 @@
 #if TM_HANDLE_MAIN
 /* A pointer array for all the possible pressable ASCII keys.
 This will be used to call the callbacks for each key. */
-void (*key_callbacks[128])();
-void (*resize_callback)(int, int);
-void (*any_char_callback)(char);
+void (*tm_key_callbacks[128])();
+void (*tm_resize_callback)(int, int);
+void (*tm_any_char_callback)(char);
 #endif
 
 int tm_run = 1;
@@ -94,7 +94,7 @@ void tm_init(){
 		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
 	#endif
 }
-void endTerminalManager(){
+void tm_end(){
 	#ifdef _WIN32
 	SetConsoleMode(tm_outputHandle, oldMode);
 	#elif __linux__
@@ -250,48 +250,48 @@ char getch(){
 
 #if TM_HANDLE_MAIN
 
-void (*key_callbacks[128])() = {0};
-void (*resize_callback)(int width, int height) = 0;
-void (*any_char_callback)(char) = 0;
+void (*tm_key_callbacks[128])() = {0};
+void (*tm_resize_callback)(int width, int height) = 0;
+void (*tm_any_char_callback)(char) = 0;
 
 void tm_bindKey(const char character, void(*function)(void)){
 	if(character >= 0 && character < 128){
-		key_callbacks[(int)character] = function;
+		tm_key_callbacks[(int)character] = function;
 	}
 }
 
 /*This function is not part of the API of the library, thus not in the header*/
 void callCharCallback(char character){
 	if(character >= 0 && character < 128){
-		if(key_callbacks[(int)character] != 0)
-			key_callbacks[(int)character]();
-		if(any_char_callback != 0)
-			any_char_callback(character);
+		if(tm_key_callbacks[(int)character] != 0)
+			tm_key_callbacks[(int)character]();
+		if(tm_any_char_callback != 0)
+			tm_any_char_callback(character);
 	}
 }
 
-void setResizeCallback(void(*function)(int, int)){
-	resize_callback = function;
+void tm_setResizeCallback(void(*function)(int, int)){
+	tm_resize_callback = function;
 }
 void tm_bindToAnyKeypress(void(*function)(char)){
-	any_char_callback = function;
+	tm_any_char_callback = function;
 }
 
 
 int main(int argc, char* argv[]){
 	int tm_height, tm_width, tm_previous_width, tm_previous_height;
-	initTerminalManager();
-	initCall();
-	getTerminalSize(&tm_height, &tm_width);
+	tm_init();
+	tm_initCall();
+	tm_getTerminalSize(&tm_height, &tm_width);
 	tm_previous_width = tm_width;
 	tm_previous_height = tm_height;
 
 	while(tm_run){
-		waitus(1000);
-		getTerminalSize(&tm_height, &tm_width);
+		tm_waitus(1000);
+		tm_getTerminalSize(&tm_height, &tm_width);
 		if(tm_height != tm_previous_height || tm_width != tm_previous_width){
-			if(resize_callback != 0)
-				resize_callback(tm_height, tm_width);
+			if(tm_resize_callback != 0)
+				tm_resize_callback(tm_height, tm_width);
 			tm_previous_width = tm_width;
 			tm_previous_height = tm_height;
 		}
@@ -299,7 +299,7 @@ int main(int argc, char* argv[]){
 		callCharCallback(c);
 
 	}
-	endTerminalManager();
+	tm_end();
 	return 0;
 }
 

@@ -223,7 +223,7 @@ void tm_bindToAnyKeypress(void(*function)(char));
 *
 * \param function The function to be called whenever the terminal is resized. It should be of type \a void and take two \a int arguments (new number of rows and columns respectively)/
 */
-void setResizeCallback(void(*function)(int, int));
+void tm_setResizeCallback(void(*function)(int, int));
 
 #endif
 
