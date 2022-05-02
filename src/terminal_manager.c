@@ -7,6 +7,8 @@
 	#include <unistd.h>
 	#include <stdlib.h>
 	#include <termios.h>
+	#include <sys/time.h>
+	#include <sys/types.h>
 #elif _WIN32
 	#include <windows.h>
 #else
@@ -23,6 +25,8 @@
 #elif __linux__
 	struct winsize tm_winsize;
 	static struct termios oldt, newt;
+	struct timeval tv;
+	fd_set rfds;
 #endif
 /* Global variable initializations */
 #if USE_IN_MEMORY_CHARACTER_MAPS
@@ -74,10 +78,9 @@ void initTerminalManager(){
 	#elif __linux__
 		tcgetattr( STDIN_FILENO, &oldt);
 		newt = oldt;	
-		newt.c_lflag &= ~(ICANON);          
-		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
-		newt.c_lflag &= ~(ICANON | ECHO);
 		ioctl(STDOUT_FILENO, TIOCGWINSZ, &tm_winsize);
+		newt.c_lflag &= ~(ICANON | ECHO);
+		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
 	#endif
 }
 void endTerminalManager(){
@@ -94,6 +97,7 @@ void getTerminalSize(int* rows, int* columns){
 		*rows = tm_csbi.srWindow.Bottom - tm_csbi.srWindow.Top + 1;
 		*columns = tm_csbi.srWindow.Right - tm_csbi.srWindow.Left + 1;
 	#elif __linux__
+		ioctl(STDOUT_FILENO, TIOCGWINSZ, &tm_winsize);
 		*rows = tm_winsize.ws_row;
 		*columns = tm_winsize.ws_col;
 	#endif
@@ -120,7 +124,7 @@ void wait(unsigned int t){
 
 void waitus(unsigned int t){
 	#ifdef _WIN32
-	/* Apparently windows has no uslepp function, so it has to be defined*/
+	/* Apparently windows has no usleep function, so it has to be defined*/
 	HANDLE timer;
 	LARGE_INTEGER ft;
 
@@ -211,8 +215,16 @@ char tm_getch(){
 	else return 0;
 
 	#elif __linux__
-		char c = getchar();
-		return c;
+	char c = 64;
+	FD_ISSET(0, &rfds);
+	FD_ZERO(&rfds);
+	FD_SET(0, &rfds);
+	tv.tv_sec = 0;
+	tv.tv_usec = 5000;
+	select(1, &rfds, NULL, NULL, &tv);
+	if(FD_ISSET(0, &rfds))
+		c = (char)getchar();	
+	return c;
 	#endif
 }
 
@@ -248,22 +260,22 @@ void setResizeCallback(void(*function)(int, int)){
 }
 
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[]){			
 	int tm_height, tm_width, tm_previous_width, tm_previous_height;
 	initTerminalManager();
 	initCall();
 	getTerminalSize(&tm_height, &tm_width);
-	tm_previous_width = tm_height;
-	tm_previous_height = tm_width;
+	tm_previous_width = tm_width;
+	tm_previous_height = tm_height;
 
 	while(tm_run){
 		waitus(1000);
 		getTerminalSize(&tm_height, &tm_width);
-		if(tm_height != tm_previous_width || tm_width != tm_previous_height){
+		if(tm_height != tm_previous_height || tm_width != tm_previous_width){
 			if(resize_callback != 0)
 				resize_callback(tm_height, tm_width);
-			tm_previous_width = tm_height;
-			tm_previous_height = tm_width;
+			tm_previous_width = tm_width;
+			tm_previous_height = tm_height;
 		}
 		char c = tm_getch();
 		callCharCallback(c);
