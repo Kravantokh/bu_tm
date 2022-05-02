@@ -26,6 +26,7 @@ void initCall(){
 	setResizeCallback(&resize);
 	setCharCallback('q', &quit);
 	setCharCallback('t', &test);
+}
 
 void tm_initCall(){
 	printf("Init");
