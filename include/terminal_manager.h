@@ -76,14 +76,37 @@
 
 extern int tm_run;
 
+/*  Structs  */
+/**\brief A struct to store rgb colors and alpha. 
+*
+* The alpha channel is used as a boolean. It may be useful on transparent terminals or terminal which have a background color other than black. It may be used to print the reset color escape sequence instead of setting the background to black.
+*/
+struct tm_color{
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;	
+
+	uint8_t a;
+};
+
+struct tm_colored_char{
+	struct tm_color fg;
+	struct tm_color bg
+	char content;
+	
+};
+
+
+/*  Struct manager functions  */
+
 /*Make it easier for c++ users to use this header.*/
 #ifdef __cplusplus
 /*benutils namespace*/
-namespace bu{
+namespace benutils{
 
-/*terminal manager namespace*/
-namespace tm{
-
+/*terminal manager namespace - removed due to being redundant because of the tm_ prefixes*/
+/*namespace tm{
+*/
 
 extern "C" {
 #endif
@@ -163,14 +186,14 @@ void tm_resetColor();
 * \param green Green value (0-255)
 * \param blue Blue value (0-255)
 */
-void tm_rgbFG(int red, int green, int blue);
+void tm_rgbFG(uint8_t red, uint8_t green, uint8_t blue);
 /** \ingroup CFs
 * \brief Write to the console the requiered string to switch background color to the given RGB value
 * \param red Red value (0-255)
 * \param green Green value (0-255)
 * \param blue Blue value (0-255)
 */
-void tm_rgbBG(int red, int green, int blue);
+void tm_rgbBG(uint8_t red, uint8_t green, uint8_t blue);
 
 /** \ingroup CFs
 * \brief Store the text color changing escape sequence corresponding to the given HEX value into the given string.
@@ -232,7 +255,7 @@ void tm_setResizeCallback(void(*function)(int, int));
 
 } //end of extern C functions.
 
-} //namespace tm
+//} //namespace tm
 } //namespace bu
 #endif
 

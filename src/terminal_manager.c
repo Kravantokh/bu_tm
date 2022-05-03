@@ -57,6 +57,29 @@ void (*tm_any_char_callback)(char);
 
 int tm_run = 1;
 
+/* Struct manager functions */
+struct tm_color tm_create_color(uint8_t r, uint8_t g, uint8_t b){
+	struct tm_color color = {r, g, b};
+	return color;
+}
+
+struct colored_char tm_create_colored_char(struct tm_color fg, tm_color bg, char c){
+	struct tm_colored_char coloredChar = {fg.r, fg.g, fg.b, fg.a, bg.r, bg.g, bg.b, bg.a, c};
+	return coloredChar;
+}
+
+
+void tm_printChar(struct tm_colored_char cc){
+	if(cc.bg.a){
+		tm_resetColor();
+	else
+		tm_rgbBG
+		tm_rgbFG(cc.fg.r, cc.fg.g, cc.fg.b);
+
+		print(c);
+	}
+}
+
 /* Functions */
 
 /* C++ friendly library */
