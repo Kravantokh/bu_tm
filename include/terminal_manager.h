@@ -49,6 +49,7 @@
 /** @}*/
 #include "tm_predefs.h"
 #include <stdint.h>
+#include <wchar.h>
 
 /* Global variables */
 #if TM_USE_IN_MEMORY_CHARACTER_MAPS
@@ -77,27 +78,54 @@
 extern int tm_run;
 
 /*  Structs  */
-/**\brief A struct to store rgb colors and alpha. 
+/**\brief A struct to store rgb colors and alpha.
 *
 * The alpha channel is used as a boolean. It may be useful on transparent terminals or terminal which have a background color other than black. It may be used to print the reset color escape sequence instead of setting the background to black.
 */
 struct tm_color{
 	uint8_t r;
 	uint8_t g;
-	uint8_t b;	
-
+	uint8_t b;
 	uint8_t a;
 };
+typedef struct tm_color tm_color;
 
+/** \brief A struct intented to store a foreground (text) and background color along with a character.
+*
+* Use this in conjuction with \link tm_printChar tm_printChar\endlink to print out colored characters.
+*/
 struct tm_colored_char{
 	struct tm_color fg;
-	struct tm_color bg
+	struct tm_color bg;
 	char content;
-	
 };
-
+typedef struct tm_colored_char tm_colored_char;
 
 /*  Struct manager functions  */
+
+/** \brief A function that returns a \link tm_color tm_color\endlink struct containing the given color.
+*
+* \param r Red value (0-255)
+* \param g Green value (0-255)
+* \param b Blue value (0-255)
+* \param a Alpha (0-1)
+*/
+
+tm_color tm_create_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
+/** \brief A function that returns a \link tm_colored_char tm_colored_char\endlink struct containing the given character and colors.
+*
+* \param fg Foreground color
+* \param bg Background color
+* \param c The character you wish to store
+*/
+tm_colored_char tm_create_colored_char(tm_color fg, tm_color bg, char c);
+
+/** \brief A function that prints out a character stored in a \link tm_colored_char tm_colored_char\endlink with its set colors and transparency.
+*
+* \param colored_character The colored character to be printed.
+*/
+void tm_printChar(tm_colored_char colored_character);
 
 /*Make it easier for c++ users to use this header.*/
 #ifdef __cplusplus

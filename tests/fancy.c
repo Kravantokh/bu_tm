@@ -1,5 +1,6 @@
 #include "terminal_manager.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 void quit(){
 	tm_run = 0;
@@ -7,29 +8,20 @@ void quit(){
 }
 
 void test(){
-	int r, c;
-	tm_getTerminalSize(&r, &c);
-	printf("%d %d\n", r, c);
+
+
+       if (printf("%lc\n", 0x2588) < 0) {
+           perror("printf");
+       }
+
 }
 void resize(int r, int c){
 	tm_clear();
 	printf("resized to %dx%d\n", r, c);
 }
 
-void initCall(){
-	int r, c;
-	tm_getTerminalSize(&r, &c);
-	printf("%d %d", r, c);
-	int i;
-	for(i = 0; i<r*c; ++i)
-		printf(" ");
-	tm_setResizeCallback(&resize);
-	tm_bindKey('q', &quit);
-	tm_bindKey('t', &test);
-}
-
 void tm_initCall(){
-	printf("Init");
+	/*tm_colored_char c1 = {125,125,125,0, 255,255,255,0, 'c'};*/
 	tm_setResizeCallback(&resize);
 	tm_bindKey('q', &quit);
 	tm_bindKey('t', &test);

@@ -1,4 +1,25 @@
 var searchData=
 [
-  ['setresizecallback_0',['setResizeCallback',['../group___h_m.html#ga37e94fa376b3cb57283535498941877d',1,'terminal_manager.h']]]
+  ['tm_5fbindkey_0',['tm_bindKey',['../group___h_m.html#gadda6f1dd513200987026ee77d5978ddb',1,'terminal_manager.h']]],
+  ['tm_5fbindtoanykeypress_1',['tm_bindToAnyKeypress',['../group___h_m.html#ga1df4e7ef9acbdad7a663fb5c7d783827',1,'terminal_manager.h']]],
+  ['tm_5fclear_2',['tm_clear',['../terminal__manager_8h.html#a9191b30a44a45af00c12066232720383',1,'terminal_manager.h']]],
+  ['tm_5fcreate_5fcolor_3',['tm_create_color',['../terminal__manager_8h.html#ab8990265c3a89a3d7a9eefb2f2bb4f77',1,'terminal_manager.h']]],
+  ['tm_5fcreate_5fcolored_5fchar_4',['tm_create_colored_char',['../terminal__manager_8h.html#ad1535796775a55337c5313dc8a4265cd',1,'terminal_manager.h']]],
+  ['tm_5fgetterminalsize_5',['tm_getTerminalSize',['../terminal__manager_8h.html#a30ba3f86ad7175189b0d8a35e458b7e2',1,'terminal_manager.h']]],
+  ['tm_5fhexbg_6',['tm_hexBG',['../group___c_fs.html#ga0c00f95bfcd1a049c866022e5f08c7ba',1,'terminal_manager.h']]],
+  ['tm_5fhexfg_7',['tm_hexFG',['../group___c_fs.html#ga2a702eb8be6da6956705a8471248e07d',1,'terminal_manager.h']]],
+  ['tm_5finit_8',['tm_init',['../terminal__manager_8h.html#a19f870f000e4edf585377da17e1d409c',1,'terminal_manager.h']]],
+  ['tm_5finitcall_9',['tm_initCall',['../group___h_m.html#ga7336e8195795119cb09b1b0bebd6add3',1,'terminal_manager.h']]],
+  ['tm_5fmovecursor_10',['tm_moveCursor',['../terminal__manager_8h.html#a355b78d35d6c16749627731bc6f088a2',1,'terminal_manager.h']]],
+  ['tm_5fprintchar_11',['tm_printChar',['../terminal__manager_8h.html#a24ca3a923a6aefd4155ce5c91ff0a3d6',1,'terminal_manager.h']]],
+  ['tm_5fresetcolor_12',['tm_resetColor',['../group___c_fs.html#ga7fadc2e44bf56244bdd69c57dc43a29b',1,'terminal_manager.h']]],
+  ['tm_5frgbbg_13',['tm_rgbBG',['../group___c_fs.html#ga080082e833c77d18173eb37171bf34ab',1,'terminal_manager.h']]],
+  ['tm_5frgbfg_14',['tm_rgbFG',['../terminal__manager_8h.html#ad8213e0760d17bc9f58ebae170a3e479',1,'terminal_manager.h']]],
+  ['tm_5fsetresizecallback_15',['tm_setResizeCallback',['../group___h_m.html#ga768a6edcfbfe290044e5795e3c8f42a2',1,'terminal_manager.h']]],
+  ['tm_5fstore_5fhexbg_16',['tm_store_hexBG',['../group___c_fs.html#ga793b43418a6fddc4601c4641f65aff72',1,'terminal_manager.h']]],
+  ['tm_5fstore_5fhexfg_17',['tm_store_hexFG',['../group___c_fs.html#ga34c9f6115d552901fdfa0b1407350ca0',1,'terminal_manager.h']]],
+  ['tm_5fstore_5frgbbg_18',['tm_store_rgbBG',['../group___c_fs.html#gae1e9e14f8868fce7a356b0fbfb0a3dbc',1,'terminal_manager.h']]],
+  ['tm_5fstore_5frgbfg_19',['tm_store_rgbFG',['../group___c_fs.html#ga9ca08b88614508d83e21442296689759',1,'terminal_manager.h']]],
+  ['tm_5fwait_20',['tm_wait',['../terminal__manager_8h.html#a9e2774f3f530adefdd0a19f6640061e5',1,'terminal_manager.h']]],
+  ['tm_5fwaitus_21',['tm_waitus',['../terminal__manager_8h.html#a682137c392d771bd0feee44f0731522a',1,'terminal_manager.h']]]
 ];

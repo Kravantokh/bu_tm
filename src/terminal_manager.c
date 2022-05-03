@@ -1,6 +1,6 @@
 #include <terminal_manager.h>
 #include <stdio.h>
-#include <stdint.h>
+#include <locale.h>
 
 #ifdef __linux__
 	#include <sys/ioctl.h>
@@ -57,27 +57,25 @@ void (*tm_any_char_callback)(char);
 
 int tm_run = 1;
 
-/* Struct manager functions */
-struct tm_color tm_create_color(uint8_t r, uint8_t g, uint8_t b){
-	struct tm_color color = {r, g, b};
-	return color;
-}
+/* ** Struct manager functions ** */
 
-struct colored_char tm_create_colored_char(struct tm_color fg, tm_color bg, char c){
-	struct tm_colored_char coloredChar = {fg.r, fg.g, fg.b, fg.a, bg.r, bg.g, bg.b, bg.a, c};
+tm_colored_char tm_create_colored_char(tm_color fg, tm_color bg, char c){
+	tm_colored_char coloredChar = {fg, bg, c};
 	return coloredChar;
 }
 
+tm_color tm_create_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a){
+	tm_color color = {r, g, b, a};
+	return color;
+}
 
-void tm_printChar(struct tm_colored_char cc){
-	if(cc.bg.a){
+void tm_printChar(tm_colored_char cc){
+	if(cc.bg.a > 0)
 		tm_resetColor();
 	else
-		tm_rgbBG
-		tm_rgbFG(cc.fg.r, cc.fg.g, cc.fg.b);
-
-		print(c);
-	}
+		tm_rgbBG(cc.bg.r, cc.bg.g, cc.bg.b);
+	tm_rgbFG(cc.fg.r, cc.fg.g, cc.fg.b);
+		printf("%c", cc.content);
 }
 
 /* Functions */
@@ -105,7 +103,8 @@ void tm_init(){
 		GetConsoleMode(tm_outputHandle, &oldMode);
 		newMode = oldMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 		SetConsoleMode(tm_outputHandle, newMode);
-
+		/* Set the correct extended ASCII set*/
+		system("CHCP 437");
 	#elif __linux__
 		tcgetattr( STDIN_FILENO, &oldt);
 		newt = oldt;
@@ -116,6 +115,8 @@ void tm_init(){
 		newt.c_lflag &= ~(ICANON | ECHO);
 		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
 	#endif
+	/* Set locale in order for unicode characters and possibly extended ASCII to work.*/
+	setlocale(LC_ALL, "");
 }
 void tm_end(){
 	#ifdef _WIN32
@@ -186,40 +187,40 @@ void tm_resetColor(){
 	printf("\x1B[0m");
 }
 
-void tm_rgbFG(int red, int green, int blue){
-	printf("\x1b[38;2;%d;%d;%dm", red, green, blue);
+void tm_rgbFG(uint8_t red, uint8_t green, uint8_t blue){
+	printf("\x1b[38;2;%u;%u;%um", red, green, blue);
 }
 
-void tm_rgbBG(int red, int green, int blue){
-	printf("\x1b[48;2;%d;%d;%dm", red, green, blue);
+void tm_rgbBG(uint8_t red, uint8_t green, uint8_t blue){
+	printf("\x1b[48;2;%u;%u;%um", red, green, blue);
 }
 
 /* Get text color string into the given string. It should be at least 22 characters long. */
 void tm_store_hexFG(char* s, const char* val){
-	int r, g, b;
+	uint8_t r, g, b;
 
 	if(*val == '#')
 		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
 	else
 		sscanf(val, "%2x%2x%2x", &r, &g, &b);
 
-	sprintf(s, "\x1b[38;2;%d;%d;%dm", r, g, b);
+	sprintf(s, "\x1b[38;2;%u;%u;%um", r, g, b);
 }
 /* Get background color string into the given string. It should be at least 22 characters long. */
 void tm_store_hexBG(char* s, const char* val){
-	int r, g, b;
+	uint8_t r, g, b;
 
 	if(*val == '#')
 		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
 	else
 		sscanf(val, "%2x%2x%2x", &r, &g, &b);
 
-	sprintf(s, "\x1b[48;2;%d;%d;%dm", r, g, b);
+	sprintf(s, "\x1b[48;2;%u;%u;%um", r, g, b);
 }
 
 /* Write to the console the requiered string to switch text color to the given HEX color */
 void tm_hexFG(const char* val){
-	int r, g, b;
+	uint8_t r, g, b;
 	if(*val == '#')
 		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
 	else
@@ -229,7 +230,7 @@ void tm_hexFG(const char* val){
 }
 /* Write to the console the requiered string to switch background color to the given HEX color */
 void tm_hexBG(const char* val){
-	int r, g, b;
+	uint8_t r, g, b;
 	if(*val == '#')
 		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
 	else
