@@ -1,0 +1,19 @@
+#Outputs
+GENERATE_HTML = YES
+GENERATE_LATEX = NO
+
+DOXYFILE_ENCODING = UTF-8
+PROJECT_NAME = "Benoe's Utilities: Terminal Manager"
+PROJECT_BRIEF = " A C/C++ cross-platform library made to ease the development of console applications."
+OUTPUT_LANGUAGE = English
+
+INPUT = src/
+INPUT = include/
+
+OUTPUT_DIRECTORY = docs/
+CREATE_SUBDIRS = NO
+
+
+#BRIEF_MEMBER_DESC = YES
+#REPEAT_BRIEF = YES
+FULL_PATH_NAMES = YES
