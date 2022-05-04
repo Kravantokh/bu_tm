@@ -97,10 +97,31 @@ typedef struct tm_color tm_color;
 struct tm_colored_char{
 	struct tm_color fg;
 	struct tm_color bg;
-	char content;
+	char ch;
 };
 typedef struct tm_colored_char tm_colored_char;
 
+
+/**\brief A struct to store a unicode character.
+*/
+struct tm_uchar{
+	char content[3];
+};
+
+typedef struct tm_uchar tm_uchar;
+/** \brief A struct intented to store a foreground (text) and background color along with a unicode character.
+*
+* Use this in conjuction with \link tm_print_uchar tm_print_uchar\endlink to print out colored characters.
+*/
+struct tm_colored_uchar{
+	struct tm_color fg;
+	struct tm_color bg;
+	struct tm_uchar ch;
+};
+typedef struct tm_colored_uchar tm_colored_uchar;
+
+void tm_print_colored_uchar(tm_colored_uchar c);
+void tm_print_uchar(tm_uchar c);
 /*  Struct manager functions  */
 
 /** \brief A function that returns a \link tm_color tm_color\endlink struct containing the given color.

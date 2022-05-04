@@ -8,12 +8,22 @@ void quit(){
 }
 
 void test(){
-
-
-       if (printf("%lc\n", 0x2588) < 0) {
-           perror("printf");
-       }
-
+/*	printf("%c", 226);
+	printf("%c", 152);
+	printf("%c \n ", 131);
+	char buf[] = { 226, 152 , 131 };
+*/
+	tm_color c1 = tm_create_color(125,125,125,0);
+	tm_color c2 = tm_create_color(255,255,255,0);
+	tm_uchar ch = { 226, 152 , 131 };
+	tm_colored_uchar c = {c1, c2, ch};
+	tm_print_colored_uchar(c);
+	tm_resetColor();
+	tm_print_uchar( (tm_uchar){226, 152, 131} );
+	
+	
+	/*fwrite(buf, 1, sizeof(buf), stdout);
+	*/printf(" ");
 }
 void resize(int r, int c){
 	tm_clear();

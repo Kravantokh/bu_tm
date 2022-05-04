@@ -75,7 +75,20 @@ void tm_printChar(tm_colored_char cc){
 	else
 		tm_rgbBG(cc.bg.r, cc.bg.g, cc.bg.b);
 	tm_rgbFG(cc.fg.r, cc.fg.g, cc.fg.b);
-		printf("%c", cc.content);
+		printf("%c", cc.ch);
+}
+
+void tm_print_uchar(tm_uchar c){
+	fwrite(c.content, 1, sizeof(c.content), stdout);
+}
+
+void tm_print_colored_uchar(tm_colored_uchar c){
+	if(c.bg.a > 0)
+		tm_resetColor();
+	else
+		tm_rgbBG(c.bg.r, c.bg.g, c.bg.b);
+	tm_rgbFG(c.fg.r, c.fg.g, c.fg.b);
+	tm_print_uchar(c.ch);
 }
 
 /* Functions */
@@ -104,7 +117,6 @@ void tm_init(){
 		newMode = oldMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 		SetConsoleMode(tm_outputHandle, newMode);
 		/* Set the correct extended ASCII set*/
-		system("CHCP 437");
 	#elif __linux__
 		tcgetattr( STDIN_FILENO, &oldt);
 		newt = oldt;
@@ -115,7 +127,7 @@ void tm_init(){
 		newt.c_lflag &= ~(ICANON | ECHO);
 		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
 	#endif
-	/* Set locale in order for unicode characters and possibly extended ASCII to work.*/
+	/* Set locale in order for unicode characters .*/
 	setlocale(LC_ALL, "");
 }
 void tm_end(){
@@ -250,7 +262,7 @@ char tm_getch(){
 	else return 0;
 
 	#elif __linux__
-	char c = 64;
+	char c = 0;
 	FD_ISSET(0, &rfds);
 	FD_ZERO(&rfds);
 	FD_SET(0, &rfds);
@@ -286,7 +298,7 @@ void tm_bindKey(const char character, void(*function)(void)){
 
 /*This function is not part of the API of the library, thus not in the header*/
 void callCharCallback(char character){
-	if(character >= 0 && character < 128){
+	if(character > 0 && character < 128){
 		if(tm_key_callbacks[(int)character] != 0)
 			tm_key_callbacks[(int)character]();
 		if(tm_any_char_callback != 0)
@@ -311,7 +323,7 @@ int main(int argc, char* argv[]){
 	tm_previous_height = tm_height;
 
 	while(tm_run){
-		tm_waitus(1000);
+		tm_waitus(100);
 		tm_getTerminalSize(&tm_height, &tm_width);
 		if(tm_height != tm_previous_height || tm_width != tm_previous_width){
 			if(tm_resize_callback != 0)
