@@ -1,4 +1,5 @@
 #include <terminal_manager.h>
+#include <terminal_manager_low_level.h>
 #include <stdio.h>
 #include <locale.h>
 
@@ -19,9 +20,9 @@
 	CONSOLE_SCREEN_BUFFER_INFO tm_csbi;
 	HANDLE tm_inputHandle;
 	HANDLE tm_outputHandle;
-	DWORD tm_events;
-	INPUT_RECORD tm_buffer;
 	DWORD oldMode, newMode;
+	struct _CONSOLE_FONT_INFOEX old_info = {sizeof(CONSOLE_FONT_INFOEX)}, new_info = {sizeof(CONSOLE_FONT_INFOEX)};
+
 #elif __linux__
 	struct winsize tm_winsize;
 	static struct termios oldt, newt;
@@ -29,23 +30,7 @@
 	fd_set rfds;
 #endif
 /* Global variable initializations */
-#if TM_USE_IN_MEMORY_CHARACTER_MAPS
 
-	#ifdef __cplusplus
-	namespace bu{
-	namespace tm{
-	#endif
-
-		unsigned char hatch_map[3] = {176, 177, 178};
-		unsigned char table_map[22] = {
-			218, 191, 192, 217, 179, 196, 195, 180, 193, 194, 197,
-			201, 187, 200, 188, 186, 205, 204, 185, 202, 203, 206
-		};
-	#ifdef __cplusplus
-	}
-	}
-	#endif
-#endif
 
 #if TM_HANDLE_MAIN
 /* A pointer array for all the possible pressable ASCII keys.
@@ -69,12 +54,24 @@ tm_color tm_create_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a){
 	return color;
 }
 
+tm_color tm_create_hex_color(char* val, uint8_t a){
+	uint8_t r, g, b;
+
+	if(*val == '#')
+		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
+	else
+		sscanf(val, "%2x%2x%2x", &r, &g, &b);
+	tm_color color = {r, g, b, a};
+	return color;
+}
+
+
 void tm_printChar(tm_colored_char cc){
 	if(cc.bg.a > 0)
 		tm_resetColor();
 	else
-		tm_rgbBG(cc.bg.r, cc.bg.g, cc.bg.b);
-	tm_rgbFG(cc.fg.r, cc.fg.g, cc.fg.b);
+		tm_set_bg(cc.bg);
+	tm_set_fg(cc.fg);
 		printf("%c", cc.ch);
 }
 
@@ -86,8 +83,8 @@ void tm_print_colored_uchar(tm_colored_uchar c){
 	if(c.bg.a > 0)
 		tm_resetColor();
 	else
-		tm_rgbBG(c.bg.r, c.bg.g, c.bg.b);
-	tm_rgbFG(c.fg.r, c.fg.g, c.fg.b);
+		tm_set_bg(c.bg);
+	tm_set_fg(c.fg);
 	tm_print_uchar(c.ch);
 }
 
@@ -116,7 +113,16 @@ void tm_init(){
 		GetConsoleMode(tm_outputHandle, &oldMode);
 		newMode = oldMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 		SetConsoleMode(tm_outputHandle, newMode);
-		/* Set the correct extended ASCII set*/
+		/* Prepare for unicode. */
+		setlocale(LC_ALL, "en_US");
+		system("chcp 65001");
+		tm_clear();
+		/* Set a font that supports unicode */
+		GetCurrentConsoleFontEx(tm_outputHandle, 0, &old_info);
+		new_info = old_info;
+		new_info.nFont = 0;
+		wcscpy(new_info.FaceName, L"NSimSun"); /*L"MS Gothic"*/
+		SetCurrentConsoleFontEx(tm_outputHandle, 0, &new_info);
 	#elif __linux__
 		tcgetattr( STDIN_FILENO, &oldt);
 		newt = oldt;
@@ -126,13 +132,16 @@ void tm_init(){
 		ioctl(STDOUT_FILENO, TIOCGWINSZ, &tm_winsize);
 		newt.c_lflag &= ~(ICANON | ECHO);
 		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
+		setlocale(LC_ALL, "en_US");
 	#endif
 	/* Set locale in order for unicode characters .*/
-	setlocale(LC_ALL, "");
 }
 void tm_end(){
+	tm_resetColor();
+	tm_clear();
 	#ifdef _WIN32
 	SetConsoleMode(tm_outputHandle, oldMode);
+	SetCurrentConsoleFontEx(tm_outputHandle, 0, &old_info);
 	#elif __linux__
 	tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
 	#endif
@@ -199,65 +208,27 @@ void tm_resetColor(){
 	printf("\x1B[0m");
 }
 
-void tm_rgbFG(uint8_t red, uint8_t green, uint8_t blue){
-	printf("\x1b[38;2;%u;%u;%um", red, green, blue);
+void tm_set_fg(tm_color color){
+	printf("\x1b[38;2;%u;%u;%um", color.r, color.g, color.b);
 }
 
-void tm_rgbBG(uint8_t red, uint8_t green, uint8_t blue){
-	printf("\x1b[48;2;%u;%u;%um", red, green, blue);
-}
-
-/* Get text color string into the given string. It should be at least 22 characters long. */
-void tm_store_hexFG(char* s, const char* val){
-	uint8_t r, g, b;
-
-	if(*val == '#')
-		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
-	else
-		sscanf(val, "%2x%2x%2x", &r, &g, &b);
-
-	sprintf(s, "\x1b[38;2;%u;%u;%um", r, g, b);
-}
-/* Get background color string into the given string. It should be at least 22 characters long. */
-void tm_store_hexBG(char* s, const char* val){
-	uint8_t r, g, b;
-
-	if(*val == '#')
-		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
-	else
-		sscanf(val, "%2x%2x%2x", &r, &g, &b);
-
-	sprintf(s, "\x1b[48;2;%u;%u;%um", r, g, b);
-}
-
-/* Write to the console the requiered string to switch text color to the given HEX color */
-void tm_hexFG(const char* val){
-	uint8_t r, g, b;
-	if(*val == '#')
-		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
-	else
-		sscanf(val, "%2x%2x%2x", &r, &g, &b);
-	tm_rgbFG(r, g, b);
-
-}
-/* Write to the console the requiered string to switch background color to the given HEX color */
-void tm_hexBG(const char* val){
-	uint8_t r, g, b;
-	if(*val == '#')
-		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
-	else
-		sscanf(val, "%2x%2x%2x", &r, &g, &b);
-	tm_rgbBG(r, g, b);
+void tm_set_bg(tm_color color){
+	printf("\x1b[48;2;%u;%u;%um", color.r, color.g, color.b);
 }
 
 char tm_getch(){
 	#ifdef _WIN32
+	DWORD tm_events;
+	INPUT_RECORD tm_buffer;
 	PeekConsoleInput(tm_inputHandle, &tm_buffer, 1, &tm_events);
+
 	if(tm_events > 0){
-		/* For some reason it reads every key twice unless I do this terribleness of reading it twice myself.*/
 		ReadConsoleInput(tm_inputHandle, &tm_buffer, 1, &tm_events);
-		ReadConsoleInput(tm_inputHandle, &tm_buffer, 1, &tm_events);
-		return tm_buffer.Event.KeyEvent.uChar.AsciiChar;
+			if(tm_buffer.EventType == KEY_EVENT)
+				if(tm_buffer.Event.KeyEvent.bKeyDown)
+					return tm_buffer.Event.KeyEvent.uChar.AsciiChar;
+
+		return 0;
 	}
 	else return 0;
 

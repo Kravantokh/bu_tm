@@ -4,7 +4,6 @@
 
 void quit(){
 	tm_run = 0;
-	tm_clear();
 }
 
 void test(){
@@ -19,9 +18,9 @@ void test(){
 	tm_colored_uchar c = {c1, c2, ch};
 	tm_print_colored_uchar(c);
 	tm_resetColor();
-	tm_print_uchar( (tm_uchar){226, 152, 131} );
-	
-	
+	tm_print_uchar( (tm_uchar){0, 226, 152, 131} );
+
+
 	/*fwrite(buf, 1, sizeof(buf), stdout);
 	*/printf(" ");
 }
@@ -30,9 +29,14 @@ void resize(int r, int c){
 	printf("resized to %dx%d\n", r, c);
 }
 
+void any(char ch){
+	printf("%c", ch);
+}
+
 void tm_initCall(){
 	/*tm_colored_char c1 = {125,125,125,0, 255,255,255,0, 'c'};*/
 	tm_setResizeCallback(&resize);
 	tm_bindKey('q', &quit);
 	tm_bindKey('t', &test);
+	tm_bindToAnyKeypress(&any);
 }
