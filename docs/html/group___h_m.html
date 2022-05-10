@@ -80,38 +80,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ga1df4e7ef9acbdad7a663fb5c7d783827"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___h_m.html#ga1df4e7ef9acbdad7a663fb5c7d783827">tm_bindToAnyKeypress</a> (void(*function)(char))</td></tr>
 <tr class="memdesc:ga1df4e7ef9acbdad7a663fb5c7d783827"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind a function callback for every key.  <a href="group___h_m.html#ga1df4e7ef9acbdad7a663fb5c7d783827">More...</a><br /></td></tr>
 <tr class="separator:ga1df4e7ef9acbdad7a663fb5c7d783827"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga37e94fa376b3cb57283535498941877d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___h_m.html#ga37e94fa376b3cb57283535498941877d">setResizeCallback</a> (void(*function)(int, int))</td></tr>
-<tr class="memdesc:ga37e94fa376b3cb57283535498941877d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind a function callback for whenever the terminal is resized.  <a href="group___h_m.html#ga37e94fa376b3cb57283535498941877d">More...</a><br /></td></tr>
-<tr class="separator:ga37e94fa376b3cb57283535498941877d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga768a6edcfbfe290044e5795e3c8f42a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___h_m.html#ga768a6edcfbfe290044e5795e3c8f42a2">tm_setResizeCallback</a> (void(*function)(int, int))</td></tr>
+<tr class="memdesc:ga768a6edcfbfe290044e5795e3c8f42a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind a function callback for whenever the terminal is resized.  <a href="group___h_m.html#ga768a6edcfbfe290044e5795e3c8f42a2">More...</a><br /></td></tr>
+<tr class="separator:ga768a6edcfbfe290044e5795e3c8f42a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ga37e94fa376b3cb57283535498941877d" name="ga37e94fa376b3cb57283535498941877d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga37e94fa376b3cb57283535498941877d">&#9670;&nbsp;</a></span>setResizeCallback()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void setResizeCallback </td>
-          <td>(</td>
-          <td class="paramtype">void(*)(int, int)&#160;</td>
-          <td class="paramname"><em>function</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Bind a function callback for whenever the terminal is resized. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">function</td><td>The function to be called whenever the terminal is resized. It should be of type <em>void</em> and take two <em>int</em> arguments (new number of rows and columns respectively)/ </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="gadda6f1dd513200987026ee77d5978ddb" name="gadda6f1dd513200987026ee77d5978ddb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gadda6f1dd513200987026ee77d5978ddb">&#9670;&nbsp;</a></span>tm_bindKey()</h2>
 
@@ -194,6 +168,32 @@ Functions</h2></td></tr>
 <p>This function is called when the application starts. </p>
 <p >Define it with your initialization code inside it (keybindigs should also be added here). Think of it as the code that runs in the main before the main loop. In the loop all you have are the callbacks to perform actions. <br  />
  <b>Attention!</b> If you do not define this you will have linking errors unless you set <em>TM_HANDLE_MAIN</em> to 0. </p>
+
+</div>
+</div>
+<a id="ga768a6edcfbfe290044e5795e3c8f42a2" name="ga768a6edcfbfe290044e5795e3c8f42a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga768a6edcfbfe290044e5795e3c8f42a2">&#9670;&nbsp;</a></span>tm_setResizeCallback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tm_setResizeCallback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int)&#160;</td>
+          <td class="paramname"><em>function</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bind a function callback for whenever the terminal is resized. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">function</td><td>The function to be called whenever the terminal is resized. It should be of type <em>void</em> and take two <em>int</em> arguments (new number of rows and columns respectively)/ </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

@@ -1,36 +1,40 @@
 #include "terminal_manager.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include "benutils/unicode.h"
 
 void quit(){
 	tm_run = 0;
-	tm_clear();
 }
 
 void test(){
-	int r, c;
-	tm_getTerminalSize(&r, &c);
-	printf("%d %d\n", r, c);
+/*	printf("%c", 226);
+	printf("%c", 152);
+	printf("%c \n ", 131);
+	char buf[] = { 226, 152 , 131 };
+*/
+	tm_color c1 = tm_create_color(125,125,125,0);
+	tm_color c2 = tm_create_color(255,255,255,0);
+	tm_resetColor();
+
+	char* c = encode_uchar("U+00BF");
+	print_uchar(c);
+
+
 }
 void resize(int r, int c){
 	tm_clear();
 	printf("resized to %dx%d\n", r, c);
 }
 
-void initCall(){
-	int r, c;
-	tm_getTerminalSize(&r, &c);
-	printf("%d %d", r, c);
-	int i;
-	for(i = 0; i<r*c; ++i)
-		printf(" ");
-	tm_setResizeCallback(&resize);
-	tm_bindKey('q', &quit);
-	tm_bindKey('t', &test);
+void any(char ch){
+	printf("%c", ch);
 }
 
 void tm_initCall(){
-	printf("Init");
+	/*tm_colored_char c1 = {125,125,125,0, 255,255,255,0, 'c'};*/
 	tm_setResizeCallback(&resize);
 	tm_bindKey('q', &quit);
 	tm_bindKey('t', &test);
+	/*tm_bindToAnyKeypress(&any);*/
 }

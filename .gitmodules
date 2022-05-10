@@ -1,0 +1,3 @@
+[submodule "dependencies/benutils_unicode"]
+	path = dependencies/benutils_unicode
+	url = https://github.com/Kravantokh/benutils_unicode
