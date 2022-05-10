@@ -1,5 +1,6 @@
 #include <terminal_manager.h>
 #include <terminal_manager_low_level.h>
+#include "benutils/unicode.h"
 #include <stdio.h>
 #include <locale.h>
 
@@ -75,17 +76,13 @@ void tm_printChar(tm_colored_char cc){
 		printf("%c", cc.ch);
 }
 
-void tm_print_uchar(tm_uchar c){
-	fwrite(c.content, 1, sizeof(c.content), stdout);
-}
-
 void tm_print_colored_uchar(tm_colored_uchar c){
 	if(c.bg.a > 0)
 		tm_resetColor();
 	else
 		tm_set_bg(c.bg);
 	tm_set_fg(c.fg);
-	tm_print_uchar(c.ch);
+	print_uchar(c.ch);
 }
 
 /* Functions */
