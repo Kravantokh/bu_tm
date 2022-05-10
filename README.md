@@ -5,4 +5,4 @@
  
 Consider reading the docs in docs/html/index.html!
 
-Make sure to clone it with *git clone --recursive* or else you may run into problems due to missing submodules.
+Make sure to clone it with *git clone --recursive* or else you may run into problems due to missing submodules!
