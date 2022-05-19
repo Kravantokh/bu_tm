@@ -50,49 +50,59 @@ tm_colored_char tm_create_colored_char(tm_color fg, tm_color bg, char c){
 	return coloredChar;
 }
 
+tm_colored_uchar tm_create_colored_uchar(tm_color fg, tm_color bg, char* code){
+	tm_colored_uchar coloreduChar = {fg, bg, code};
+	return coloreduChar;
+}
+
 tm_color tm_create_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a){
-	tm_color color = {r, g, b, a};
+	tm_color color;
+	color.channels = (tm_rgb_color){r, g, b, a};
 	return color;
 }
 
 tm_color tm_create_hex_color(char* val, uint8_t a){
-	uint8_t r, g, b;
+	uint32_t data = 0;
 
 	if(*val == '#')
-		sscanf(val, "#%2x%2x%2x", &r, &g, &b);
+		sscanf(val, "#%6x", &data);
 	else
-		sscanf(val, "%2x%2x%2x", &r, &g, &b);
-	tm_color color = {r, g, b, a};
+		sscanf(val, "%6x", &data);
+
+	tm_color color;
+
+	color.channels.blue = 0x00 | data;
+	data >>= 8;
+	color.channels.green = 0x00 | data;
+	data >>= 8;
+	color.channels.red = 0x00 | data;
+	data >>= 8;
+	color.channels.alpha = a;
+
 	return color;
 }
 
-
-void tm_printChar(tm_colored_char cc){
-	if(cc.bg.a > 0)
-		tm_resetColor();
+void tm_print_colored_char(tm_colored_char c){
+	if(c.bg.channels.alpha > 0)
+		tm_reset_color();
 	else
-		tm_set_bg(cc.bg);
-	tm_set_fg(cc.fg);
-		printf("%c", cc.ch);
+		tm_set_bg(c.bg);
+	tm_set_fg(c.fg);
+		printf("%c", c.ch);
 }
 
 void tm_print_colored_uchar(tm_colored_uchar c){
-	if(c.bg.a > 0)
-		tm_resetColor();
+	if(c.bg.channels.alpha > 0)
+		tm_reset_color();
 	else
 		tm_set_bg(c.bg);
 	tm_set_fg(c.fg);
 	print_uchar(c.ch);
 }
-
 /* Functions */
 
 /* C++ friendly library */
 #ifdef __cplusplus
-/*benutils namespace*/
-namespace bu{
-/* Terminal manager namespace */
-namespace tm{
 /*Character maps*/
 
 extern "C" {
@@ -134,7 +144,7 @@ void tm_init(){
 	/* Set locale in order for unicode characters .*/
 }
 void tm_end(){
-	tm_resetColor();
+	tm_reset_color();
 	tm_clear();
 	#ifdef _WIN32
 	SetConsoleMode(tm_outputHandle, oldMode);
@@ -156,7 +166,7 @@ void tm_getTerminalSize(int* rows, int* columns){
 	#endif
 }
 
-void tm_moveCursor(int row, int column){
+void tm_move_cursor(int row, int column){
 	printf("\033[%d;%dH", row, column);
 }
 void tm_clear(){
@@ -201,16 +211,16 @@ void tm_store_rgbBG(char* s, int red, int green, int blue){
 	sprintf(s, "\x1b[48;2;%d;%d;%dm", red, green, blue);
 }
 
-void tm_resetColor(){
+void tm_reset_color(){
 	printf("\x1B[0m");
 }
 
 void tm_set_fg(tm_color color){
-	printf("\x1b[38;2;%u;%u;%um", color.r, color.g, color.b);
+	printf("\x1b[38;2;%u;%u;%um", color.channels.red, color.channels.green, color.channels.blue);
 }
 
 void tm_set_bg(tm_color color){
-	printf("\x1b[48;2;%u;%u;%um", color.r, color.g, color.b);
+	printf("\x1b[48;2;%u;%u;%um", color.channels.red, color.channels.green, color.channels.blue);
 }
 
 char tm_getch(){
@@ -311,17 +321,14 @@ int main(int argc, char* argv[]){
 
 
 #ifdef __cplusplus
-//Here I can finally use c++ comments, cuz it will not be visible for the c compiler and thus compatibility all the way back to c89 will be kept.
-//Yes I left that comment just for fun.
+//Here I can finally use c++ comments, because it will not be visible for the c compiler and thus compatibility all the way back to c89 will be kept.
 
 } //end of extern C functions.
 
-} //namespace tm
-} //namespace bu
-
 #endif
 
-/*
+/* copy-paste template for cross-platform functions
+
 #ifdef _WIN32
 
 #elif __linux__

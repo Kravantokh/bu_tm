@@ -9,16 +9,7 @@
 */
 
 /**
-* \brief This macro decides whether macros for characters should be created or not.
-*
-* It makes use of \link tm_predefs.h tm_predefs.h\endlink.
-*/
-#ifndef TM_PREDEFINE_CHARACTERS
-	#define TM_PREDEFINE_CHARACTERS 1
-#endif
-
-/**
-* \brief This macro decides whether some macros for terminal colors should be created or not.
+* \brief This macro decides whether the macros for terminal colors should be created or not.
 *
 * It makes use of \link tm_predefs.h tm_predefs.h\endlink.
 */
@@ -40,29 +31,46 @@
 #include <wchar.h>
 
 /* Global variables */
-
+/**
+* \brief Set this to 0 to exit the application.
+*/
 extern int tm_run;
 
+
+
 /*  Structs  */
-/**\brief A struct to store rgb colors and alpha.
-*
-* The alpha channel is used as a boolean. It may be useful on transparent terminals or terminal which have a background color other than black. It may be used to print the reset color escape sequence instead of setting the background to black.
-*/
-struct tm_color{
+
+/*struct tm_color{
 	uint8_t r;
 	uint8_t g;
 	uint8_t b;
 	uint8_t a;
+};*/
+/*typedef struct tm_color tm_color;*/
+struct tm_rgb_color{
+	unsigned int red : 8;
+	unsigned int green : 8;
+	unsigned int blue : 8;
+	unsigned int alpha : 8;
 };
-typedef struct tm_color tm_color;
+
+/**\brief A union to store rgb colors and alpha.
+*
+* The alpha channel is used as a boolean. It may be useful on transparent terminals or terminal which have a background color other than black. When set the \link tm_print_colored_char tm_print_colored_char\endlink and \link tm_print_colored_uchar tm_print_colored_uchar\endlink will print set the background to default instead of printing the given background color.
+*/
+union tm_color{
+	uint32_t raw;
+	struct tm_rgb_color channels;
+};
+typedef union tm_color tm_color;
 
 /** \brief A struct intented to store a foreground (text) and background color along with a character.
 *
 * Use this in conjuction with \link tm_printChar tm_printChar\endlink to print out colored characters.
 */
 struct tm_colored_char{
-	struct tm_color fg;
-	struct tm_color bg;
+	tm_color fg;
+	tm_color bg;
 	char ch;
 };
 typedef struct tm_colored_char tm_colored_char;
@@ -73,8 +81,8 @@ typedef struct tm_colored_char tm_colored_char;
 * Use this in conjuction with \link tm_print_uchar tm_print_uchar\endlink to print out colored characters.
 */
 struct tm_colored_uchar{
-	struct tm_color fg;
-	struct tm_color bg;
+	tm_color fg;
+	tm_color bg;
 	char* ch;
 };
 typedef struct tm_colored_uchar tm_colored_uchar;
@@ -93,30 +101,23 @@ extern "C" {
 
 /****  Functions  ****/
 
-/*  Struct Managers  */
-
-/** \brief A function that prints out a unicode character stored in a \link tm_colored_uchar tm_colored_uchar\endlink with its set colors and transparency.
-*
-* \param c The unicode character to be printed.
-*/
-void tm_print_colored_uchar(tm_colored_uchar c);
-
 /*  Struct manager functions  */
 
-/** \brief A function that returns a \link tm_color tm_color\endlink struct containing the given color.
+/** \brief A function that returns a \link tm_colored_char tm_colored_char\endlink struct containing the given color.
 *
-* \param r Red value (0-255)
-* \param g Green value (0-255)
-* \param b Blue value (0-255)
-* \param a Alpha (0-1)
+* \param fg Foreground color
+* \param bg Background color
+* \param c Character to be stored
 */
 tm_colored_char tm_create_colored_char(tm_color fg, tm_color bg, char c);
-
-
-/** A simple initialization function for the library.
-* Should always be run if you implement the main function.
+/** \brief A function that returns a \link tm_colored_uchar tm_color_colored_uchar\endlink struct containing the given colors and unicode character.
+*
+* \param fg Foreground color
+* \param bg Background color
+* \param code The unicode code for the colored char in the format 'U+<CODE>', where CODE is the unicode character code in hex with capital letters/
 */
-void tm_init();
+tm_colored_uchar tm_create_colored_uchar(tm_color fg, tm_color bg, char* code);
+
 
 #if TM_HANDLE_MAIN
 /**\defgroup HM Functions for managing the terminal. TM_HANDLE_MAIN must be defined for these to work.*/
@@ -130,31 +131,8 @@ void tm_init();
 void tm_initCall();
 #endif
 
-/**
-* \brief Gives you the size of the terminal.
-* \param[out] rows The vertical size of the terminal will be written to this address in number of characters.
-* \param[out] columns The horizontal size of the terminal will be written to this address in number of characters.
-*/
-void tm_getTerminalSize(int* rows, int* columns);
-
-/** \brief Clears the terminal
-
-* \b Note: This should not be used for frequent refreshes because it may take time and make everyting flash.
-*/
-void tm_clear();
-
-/** \brief Wait for the specified amount of seconds.*/
-void tm_wait(unsigned int t);
-/** \brief Wait for the specified amount of microseconds.
-*
-* Not absolutely precise. May wait a little more.*/
-void tm_waitus(unsigned int t);
-
-/* Set rgb color for true color terminals */
-
-/** \defgroup CFs Color changing functions*/
-
 tm_color tm_create_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
 
 /** \ingroup CFs
 * \brief A function that returns a \link tm_color tm_color\endlink struct containing the given color.

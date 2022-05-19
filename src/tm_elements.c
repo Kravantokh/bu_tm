@@ -1,18 +1,24 @@
 #include <tm_elements.h>
-/*
-char** tm_canvas[];
+#include <terminal_manager.h>
 
-struct tm_element renderList[TM_MAX_ELEMENT_NUM];
+tm_colored_char** tm_canvas;
 
-void tm_render(){
-	int nrows;
-	int ncols;
-	getTerminalSize(&nrows, &ncols);
+uint8_t tm_layoutX;
+uint8_t tm_layoutY;
+
+void tm_set_layout(uint8_t x, uint8_t y){
+	tm_layoutX = x;
+	tm_layoutY = y;
+
+}
+
+void tm_render(int nrows, int ncols){
 
 }
 
 void tm_rendererInit(){
 	tm_setResizeCallback(&tm_render);
+
 }
 
 
@@ -25,4 +31,4 @@ void tm_setBit(uint8_t* variable, uint8_t index, uint8_t value){
 		*variable &= (0xFF & (0 << index));
 	if (value == 1)
 		(*variable) |= (0x00 | (1 << index));
-}*/
+}
