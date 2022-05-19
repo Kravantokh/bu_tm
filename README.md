@@ -16,4 +16,4 @@ To create the documentation run *makedocs.sh* or *makedocs.bat* according to you
 
 ## Planned Features
  * Support for CMake.
- *  Pre-defined window elements with automatic resizing such as textboxes, drawboxes, listst etc.
+ *  Pre-defined window elements with automatic resizing such as textboxes, drawboxes, lists etc.
