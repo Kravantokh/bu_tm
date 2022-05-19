@@ -18,49 +18,16 @@
 * Those elements can be lists, textboxes, drawboxes etc.
 */
 
-/*struct tm_element{
-	char (*printTo)(uint8_t, uint8_t);
-	uint8_t x,y;
+struct tm_element{
 	uint8_t xsize, ysize;
 
-};*/
+};
 
 char tm_listPrintTo(uint8_t x, uint8_t y);
 
 void tm_initList();
-/*Element types are:
 
-
-*/
-
-/*Element types -1 and 0 are reserved*/
-/*
-struct tm_textBox{
-	struct tm_element;
-	char* contents;
-};
-
-
-struct tm_elementList{
-	struct tm_element;
-	struct tm_element* contents;
-};
-
-
-struct tm_drawBox{
-	struct tm_element;
-	char** contents;
-};
-
-
-struct tm_button{
-	struct tm_element;
-	char* contents;
-};
-*/
-typedef struct tm_element tm_element;/*
-typedef struct tm_elementList tm_elementList;
-typedef struct tm_drawBox tm_drawBox;*/
+typedef struct tm_element tm_element;
 
 
 /*
