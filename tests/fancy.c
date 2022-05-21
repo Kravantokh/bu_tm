@@ -9,34 +9,28 @@ void quit(){
 }
 
 void test(){
-/*	printf("%c", 226);
-	printf("%c", 152);
-	printf("%c \n ", 131);
-	char buf[] = { 226, 152 , 131 };
-*/
 	tm_color c1 = tm_create_hex_color("#7D7D7D", 0);
 	tm_color c2 = tm_create_color(255,255,255,0);
 	tm_reset_color();
-	char* c = encode_uchar("U+0074");
+	char* c = encode_uchar("U+1F680");
 	tm_colored_uchar cc = tm_create_colored_uchar(c1, c2, c);
 	tm_print_colored_uchar(cc);
-	tm_colored_char ccc = tm_create_colored_char(c1, c2, 'y');
+	tm_colored_char ccc = tm_create_colored_char(c1, c2, '-');
 	tm_print_colored_char(ccc);
+	free(c);
+	tm_reset_color();
 }
 
 
 void test2(){
-/*	printf("%c", 226);
-	printf("%c", 152);
-	printf("%c \n ", 131);
-	char buf[] = { 226, 152 , 131 };
-*/
-	/*tm_color c1 = tm_create_color(125,125,125,0);
-	tm_color c2 = tm_create_color(255,255,255,0);*/
+	tm_color c1 = tm_create_color(0,125,255,0);
+	tm_color c2 = tm_create_color(255,125,0,0);
 	tm_reset_color();
-
-	char* c = encode_uchar("U+0072");
-	print_uchar(c);
+	char* c = encode_uchar("U+1F69C");
+	tm_colored_uchar cc = tm_create_colored_uchar(c1, c2, c);
+	tm_print_colored_uchar(cc);
+	free(c);
+	tm_reset_color();
 }
 
 void resize(int r, int c){
