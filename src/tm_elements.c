@@ -1,10 +1,6 @@
 #include <tm_elements.h>
 #include <terminal_manager.h>
 
-tm_colored_char** tm_canvas;
-
-uint8_t tm_layoutX;
-uint8_t tm_layoutY;
 
 void tm_set_layout(uint8_t x, uint8_t y){
 	tm_layoutX = x;

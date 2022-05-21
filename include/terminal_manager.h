@@ -54,6 +54,8 @@ struct tm_rgb_color{
 	unsigned int alpha : 8;
 };
 
+typedef struct tm_rgb_color tm_rgb_color;
+
 /**\brief A union to store rgb colors and alpha.
 *
 * The alpha channel is used as a boolean. It may be useful on transparent terminals or terminal which have a background color other than black. When set the \link tm_print_colored_char tm_print_colored_char\endlink and \link tm_print_colored_uchar tm_print_colored_uchar\endlink will print set the background to default instead of printing the given background color.

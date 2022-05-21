@@ -1,6 +1,12 @@
 #include "terminal_manager.h"
 #include "terminal_manager_low_level.h"
 #include "benutils/unicode.h"
+<<<<<<< Updated upstream
+=======
+#include <stdio.h>
+#include <locale.h>
+#include <pthread.h>
+>>>>>>> Stashed changes
 
 #ifdef __linux__
 	#include <sys/ioctl.h>
