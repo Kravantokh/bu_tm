@@ -1,8 +1,6 @@
-#include <terminal_manager.h>
-#include <terminal_manager_low_level.h>
+#include "terminal_manager.h"
+#include "terminal_manager_low_level.h"
 #include "benutils/unicode.h"
-#include <stdio.h>
-#include <locale.h>
 
 #ifdef __linux__
 	#include <sys/ioctl.h>
@@ -11,11 +9,15 @@
 	#include <termios.h>
 	#include <sys/time.h>
 	#include <sys/types.h>
+	#include <time.h>
 #elif _WIN32
 	#include <windows.h>
 #else
 	#error Unsupported platform.
 #endif
+
+#include <stdio.h>
+#include <locale.h>
 
 #ifdef _WIN32
 	CONSOLE_SCREEN_BUFFER_INFO tm_csbi;
@@ -57,7 +59,7 @@ tm_colored_uchar tm_create_colored_uchar(tm_color fg, tm_color bg, char* code){
 
 tm_color tm_create_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a){
 	tm_color color;
-	color.channels = (tm_rgb_color){r, g, b, a};
+	color.channels = (struct tm_rgb_color){r, g, b, a};
 	return color;
 }
 
@@ -133,15 +135,10 @@ void tm_init(){
 	#elif __linux__
 		tcgetattr( STDIN_FILENO, &oldt);
 		newt = oldt;
-		newt.c_lflag &= ~(ICANON);
-		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
 		newt.c_lflag &= ~(ICANON | ECHO);
 		ioctl(STDOUT_FILENO, TIOCGWINSZ, &tm_winsize);
-		newt.c_lflag &= ~(ICANON | ECHO);
 		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
-		setlocale(LC_ALL, "en_US");
 	#endif
-	/* Set locale in order for unicode characters .*/
 }
 void tm_end(){
 	tm_reset_color();
@@ -187,18 +184,22 @@ void tm_wait(unsigned int t){
 
 void tm_waitus(unsigned int t){
 	#ifdef _WIN32
-	/* Apparently windows has no usleep function, so it has to be defined*/
-	HANDLE timer;
-	LARGE_INTEGER ft;
+		/* Apparently windows has no usleep function, so it has to be defined*/
+		HANDLE timer;
+		LARGE_INTEGER ft;
 
-	ft.QuadPart = -(10 * (__int64)t);
+		ft.QuadPart = -(10 * (__int64)t);
 
-	timer = CreateWaitableTimer(NULL, TRUE, NULL);
-	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
-	WaitForSingleObject(timer, INFINITE);
-	CloseHandle(timer);
+		timer = CreateWaitableTimer(NULL, TRUE, NULL);
+		SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+		WaitForSingleObject(timer, INFINITE);
+		CloseHandle(timer);
 	#elif __linux__
-		usleep(t);
+		struct timeval time;
+		time.tv_sec = 0;
+		time.tv_usec = t;
+		/* Use select for wait, because usleep has been deprecated and nanosleep is too new*/
+		select(0, 0, 0, 0, &time);
 	#endif
 }
 
@@ -240,16 +241,17 @@ char tm_getch(){
 	else return 0;
 
 	#elif __linux__
-	char c = 0;
-	FD_ISSET(0, &rfds);
-	FD_ZERO(&rfds);
-	FD_SET(0, &rfds);
-	tv.tv_sec = 0;
-	tv.tv_usec = 5000;
-	select(1, &rfds, NULL, NULL, &tv);
-	if(FD_ISSET(0, &rfds))
-		c = (char)getchar();
-	return c;
+		char c;
+		struct timeval tv = { 0L, 0L };
+		fd_set fds;
+		FD_ZERO(&fds);
+		FD_SET(0, &fds);
+		int res = 0;
+		if(select(1, &fds, NULL, NULL, &tv) > 0)
+			res = read(1, &c, sizeof(c));
+		if(res <= 0)
+			c = 0;
+		return c;
 	#endif
 }
 
@@ -298,7 +300,7 @@ int main(int argc, char* argv[]){
 	tm_initCall();
 	tm_getTerminalSize(&tm_height, &tm_width);
 	tm_previous_width = tm_width;
-	tm_previous_height = tm_height;
+		tm_previous_height = tm_height;
 
 	while(tm_run){
 		tm_waitus(100);
@@ -310,8 +312,10 @@ int main(int argc, char* argv[]){
 			tm_previous_height = tm_height;
 		}
 		char c = tm_getch();
-		callCharCallback(c);
-
+		if(c != 0){
+			callCharCallback(c);
+			fflush(stdout);
+		}
 	}
 	tm_end();
 	return 0;
