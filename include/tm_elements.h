@@ -28,17 +28,12 @@ tm_init_char_buffer(tm_char_buffer buff){
 */
 tm_char_buffer* tm_allocate_char_buffer(int x, int y){
 	tm_char_buffer buff = {x, y, 0};
-	buff.contents = malloc
+	buff.contents = (char*)malloc(x*y*(sizeof(char*)));
 	return buff;
 }
 
 void tm_deallocate_char_buffer(tm_char_buffer* buff){
-	if(buff.x != 0 && buff.y != 0){
-		if(contents != 0){
-			int i;
-			for(int i = 0; i < x*y; ++i)
-				free()
-		}
+	
 }
 
 struct tm_element{
