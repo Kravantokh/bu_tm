@@ -8,11 +8,11 @@ Consider reading the docs in docs/html/index.html!
 ## Installation
 Make sure to clone it with ``git clone --recursive https://github.com/Kravantokh/benutils_terminal_manager`` or else you may run into problems due to missing submodules!
 
-Run *compile.sh* or *compile.bat* depending on your platform to compile the program.
+Run `compile.sh` or `compile.bat` depending on your platform to compile the program.
 
 ## Documentation
 
-To create the documentation run *makedocs.sh* or *makedocs.bat* according to your platform.
+To create the documentation run `makedocs.sh` or `makedocs.bat` according to your platform.
 
 ## Planned Features
  * Support for CMake.
