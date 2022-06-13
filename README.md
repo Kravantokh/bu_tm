@@ -11,6 +11,11 @@ Consider reading the docs in docs/html/index.html!
 
 ## Compilation
 Make sure to clone it with ``git clone --recursive https://github.com/Kravantokh/benutils_terminal_manager`` or else you may run into problems due to missing submodules!
+If you have already cloned it not recursively run:
+```
+git submodule init
+git submodule update
+```
 
 Run `compile.sh` or `compile.bat` depending on your platform to compile the program.
 
