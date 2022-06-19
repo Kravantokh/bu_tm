@@ -12,7 +12,7 @@ void test(){
 	tm_color c1 = tm_create_hex_color("#7D7D7D", 0);
 	tm_color c2 = tm_create_color(255,255,255,0);
 	tm_reset_color();
-	char* c = encode_uchar("U+1F680");
+	char* c = allocate_uchar("U+1F680");
 	tm_colored_uchar cc = tm_create_colored_uchar(c1, c2, c);
 	tm_print_colored_uchar(cc);
 	tm_colored_char ccc = tm_create_colored_char(c1, c2, '-');
@@ -26,7 +26,7 @@ void test2(){
 	tm_color c1 = tm_create_color(0,125,255,0);
 	tm_color c2 = tm_create_color(255,125,0,0);
 	tm_reset_color();
-	char* c = encode_uchar("U+1F69C");
+	char* c = allocate_uchar("U+1F69C");
 	tm_colored_uchar cc = tm_create_colored_uchar(c1, c2, c);
 	tm_print_colored_uchar(cc);
 	free(c);
