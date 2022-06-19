@@ -184,8 +184,8 @@ void tm_setResizeCallback(void(*function)(int, int));
 
 /** \mainpage Terminal Manager
 * A C/C++ cross-platform library made to ease the development of console applications.
-* Currently supported platforms are: Linux, Windows 10 (11 has not been tested but should work). The library has functions to manage terminal size detection, resizing, text and background color changing and provides many macros and definitions to help with the use of the extended ASCII character set.
-* On windows the terminal font must be changed by the program to guarantee that unicode characters can be displayed.
+* Currently supported platforms are: Linux, Windows 10 (11 has not been tested but should work). The library has functions to manage terminal size detection, resizing, text and background color changing and provides utilities for unicode character processing.
+* On windows the terminal font must be changed by the program to guarantee that some unicode characters can be displayed.
 *
 * Given how simplistic this library is you should check out the example codes given and be able to figure out most of how it works from there. Other than that you should check out the \link terminal_manager.h this\endlink tab above to see the documentation of most of the functions.
 *

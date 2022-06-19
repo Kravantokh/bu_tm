@@ -125,8 +125,7 @@ void tm_init(){
 		SetConsoleMode(tm_outputHandle, newMode);
 		/* Prepare for unicode. */
 		setlocale(LC_ALL, "en_US");
-		system("chcp 65001");
-		tm_clear();
+		SetConsoleOutputCP(65001);
 		/* Set a font that supports unicode */
 		GetCurrentConsoleFontEx(tm_outputHandle, 0, &old_info);
 		new_info = old_info;

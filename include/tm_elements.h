@@ -7,34 +7,6 @@
 #include <terminal_manager.h>
 #include <stdint.h>
 
-/** \brief A buffer to store a number of characters. Its contents are dynamically allocated.
- * \param x, y - dimensions of the buffer
- * \param contents
-*/
-struct tm_char_buffer{
-	int x, y;
-	char* contents[];
-};
-
-typedef struct tm_char_buffer tm_char_buffer;
-
-tm_init_char_buffer(tm_char_buffer buff){
-	buff.x = 0;
-	buff.y = 0;
-	contents = 0;
-}
-
-/** \brief A function to allocate a \link tm_char_buffer tm_char_buffer\endlink struct of the given dimensions.
-*/
-tm_char_buffer* tm_allocate_char_buffer(int x, int y){
-	tm_char_buffer buff = {x, y, 0};
-	buff.contents = (char*)malloc(x*y*(sizeof(char*)));
-	return buff;
-}
-
-void tm_deallocate_char_buffer(tm_char_buffer* buff){
-	
-}
 
 struct tm_element{
 	uint8_t xsize, ysize;
