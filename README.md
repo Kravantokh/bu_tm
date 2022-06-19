@@ -4,7 +4,7 @@ A C/C++ cross-platform library made to ease the development of console applicati
 
  Currently supported platforms are: Linux, Windows 10 (11 untested, but there is no reason for it not to work). The library has functions to manage terminal size detection, resizing, text and background color changing and provides utilities for unicode text manipulation (with the help of my of my other library added as a submodule).
 
-Consider reading the docs in docs/html/index.html!
+Consider generating and reading the docs!
 
 ## Prerequisites
  * GCC
