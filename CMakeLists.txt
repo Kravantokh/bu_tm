@@ -7,7 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 # Propagating include dirs from previous level
 set(BU_TERMINAL_MANAGER_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
-set(BU_TERMINAL_MANAGER_INCLUDE /)
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dependencies/benutils_unicode)
 
 include_directories(${BU_TERMINAL_MANAGER_INCLUDE} ${BU_UNICODE_INCLUDE})
@@ -19,4 +19,4 @@ set(BU_UNICODE_INCLUDE ${BU_UNICODE_INCLUDE} PARENT_SCOPE)
 add_library(bu_terminal_manager 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/terminal_manager.c
 	)
-
+target_link_libraries(bu_terminal_manager bu_unicode)
