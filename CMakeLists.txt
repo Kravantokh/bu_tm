@@ -6,10 +6,14 @@ set(CMAKE_C_STANDARD 90)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 set(BU_TERMINAL_MANAGER_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include/ PARENT_SCOPE)
-set(BU_TERMINAL_MANAGER_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dependencies/benutils_unicode)
 
-add_subdirectory(dependencies/benutils_unicode)
+include_directories(${BU_TERMINAL_MANAGER_INCLUDE} ${BU_UNICODE_INCLUDE})
+
+# Propagating include dirs to next level
+set(BU_TERMINAL_MANAGER_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include/ PARENT_SCOPE)
+set(BU_UNICODE_INCLUDE ${BU_UNICODE_INCLUDE} PARENT_SCOPE)
 
 include_directories(${BU_TERMINAL_MANAGER_INCLUDE} ${BU_UNICODE_INCLUDE})
 

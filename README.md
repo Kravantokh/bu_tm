@@ -1,4 +1,4 @@
-# benutils_terminal_manager #
+# Benoe's utilities: Terminal Manager #
 ## Descripiton
 A C/C++ cross-platform library made to ease the development of console applications.
 
