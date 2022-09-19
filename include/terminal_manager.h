@@ -40,13 +40,6 @@ extern int tm_run;
 
 /*  Structs  */
 
-/*struct tm_color{
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
-	uint8_t a;
-};*/
-/*typedef struct tm_color tm_color;*/
 struct tm_rgb_color{
 	unsigned int red : 8;
 	unsigned int green : 8;
@@ -59,8 +52,8 @@ struct tm_rgb_color{
 * The alpha channel is used as a boolean. It may be useful on transparent terminals or terminal which have a background color other than black. When set the \link tm_print_colored_char tm_print_colored_char\endlink and \link tm_print_colored_uchar tm_print_colored_uchar\endlink will print set the background to default instead of printing the given background color.
 */
 union tm_color{
-	uint32_t raw;
 	struct tm_rgb_color channels;
+	uint32_t raw;
 };
 typedef union tm_color tm_color;
 
@@ -166,6 +159,8 @@ void tm_bindToAnyKeypress(void(*function)(char));
 * \param function The function to be called whenever the terminal is resized. It should be of type \a void and take two \a int arguments (new number of rows and columns respectively)/
 */
 void tm_setResizeCallback(void(*function)(int, int));
+
+void tm_stop();
 
 #endif
 
