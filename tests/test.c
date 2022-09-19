@@ -1,85 +1,75 @@
-/* Tamás Benő 4/21/2022 */
-#define HANDLE_MAIN 0
-#include <terminal_manager.h>
+#include "terminal_manager.h"
+#include "terminal_manager_low_level.h"
+#include "tm_elements.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include "benutils/unicode.h"
 
-int main()
-{
-	/* Always run this before starting to use the library */
-	initTerminalManager();
+void quit(){
+	tm_run = 0;
+}
 
-	/* Setting text colors (16 ANSI colors) */
-	printf("%sred%s\n", FG_RED, RST);
-	printf("%sblack%s\n", FG_BLK, RST);
-	printf("%sgreen%s\n", FG_GRE, RST);
-	printf("%syellow%s\n", FG_YEL, RST);
-	printf("%sblue%s\n", FG_BLU, RST);
-	printf("%smagenta%s\n", FG_MAG, RST);
-	printf("%scyan%s\n", FG_CYN, RST);
-	printf("%swhite%s\n", FG_WHT, RST);
-	printf("%sdefault%s\n", RST, RST);
-	printf("%sbright red%s\n", FG_BRED, RST);
-	printf("%sbright black%s\n", FG_BBLK, RST);
-	printf("%sbright green%s\n", FG_BGRE, RST);
-	printf("%sbright yellow%s\n", FG_BYEL, RST);
-	printf("%sbright blue%s\n", FG_BBLU, RST);
-	printf("%sbright magenta%s\n", FG_BMAG, RST);
-	printf("%sbright cyan%s\n", FG_BCYN, RST);
-	printf("%sbright white%s\n", FG_BWHT, RST);
-	printf("%sdefault\n", RST);
 
-	/* Setting background colors (16 ANSI colors) */
-	printf("%sred%s\n", BG_RED, RST);
-	printf("%sblack%s\n", BG_BLK, RST);
-	printf("%sgreen%s\n", BG_GRE, RST);
-	printf("%syellow%s\n", BG_YEL, RST);
-	printf("%sblue%s\n", BG_BLU, RST);
-	printf("%smagenta%s\n", BG_MAG, RST);
-	printf("%scyan%s\n", BG_CYN, RST);
-	printf("%swhite%s\n", BG_WHT, RST);
-	printf("%sdefault%s\n", RST, RST);
-	printf("%sbright red%s\n", BG_BRED, RST);
-	printf("%sbright black%s\n", BG_BBLK, RST);
-	printf("%sbright green%s\n", BG_BGRE, RST);
-	printf("%sbright yellow%s\n", BG_BYEL, RST);
-	printf("%sbright blue%s\n", BG_BBLU, RST);
-	printf("%sbright magenta%s\n", BG_BMAG, RST);
-	printf("%sbright cyan%s\n", BG_BCYN, RST);
-	printf("%sbright white%s\n", BG_BWHT, RST);
-	printf("%sdefault\n", RST);
+char a[] = "asd";
+char b[] = "Hello";
+char c[] = "there!";
 
-	/* Setting truecolor RGB colors with the help of intermediary variables.*/
-	char a[22];
-	/* Text color */
-	store_rgbFG(a, 3, 252, 186);
-	char b[22];
-	/* Background color */
-	store_rgbBG(b, 95, 125, 0);
-	/* Second text color */
-	char c[22];
-	store_hexFG(c, "#329da8");
-	printf("%sTRUE%s%s%sCOLOR%s", a, RST, b, c, RST);
-	printf("\n");
+char* l[] = {&a[0], &b[0], &c[0]};
 
-	/* Setting truecolor RGB colors without intermediary variables.*/
-	/* Foreground color */
-	rgbFG( 3, 252, 186);
-	printf("TRUE");
-	resetColor();
-	/* Background color */
-	hexBG("329da8");
-	rgbFG(3, 252, 7);
-	printf("COLOR");
-	resetColor();
-	printf("\n");
+tm_list list;
 
-	int i;
-	for(i = 0; i<3; ++i)
-		printf("%c ", hatch_map[i]);
-	printf("\n");
-	for(i = 0; i < 22; ++i)
-		printf("%c ", table_map[i]);
-	printf("\n%c\n", FULLCH);
 
-	return 0;
+tm_drawbox db;
+
+
+void test(){
+	tm_render(&db);
+};
+
+void resize(int r, int c){
+	tm_clear();
+	printf("resized to %dx%d\n", r, c);
+}
+
+void test2(){
+	tm_print_colored_char((tm_colored_char){ (tm_color){125, 125, 125, 0}, (tm_color){0, 0, 0, 0}, 'W' });
+	tm_print_colored_char((tm_colored_char){ (tm_color){125, 125, 125, 0}, (tm_color){0, 0, 0, 1}, 'W' });
+}
+
+void up(){
+	db.on_up(&db);
+	tm_render(&db);
+}
+
+void down(){
+	db.on_down(&db);
+	tm_render(&db);
+}
+
+void o1(void){
+	printf("It works.");
+}
+
+void run(){
+	db.on_run(&db);
+}
+
+void tm_initCall(){
+	list = tm_create_list(3, false,
+	
+	(tm_color){200, 200, 200, 1}, (tm_color){125, 125, 125, 1},
+	(tm_color){255, 255, 255, 0}, (tm_color){50, 50, 50, 0},
+	&a, NULL, 
+	&b, &o1,
+	&c, NULL);
+	
+	db = tm_create_drawbox(1, 1, 12, 12);
+	tm_assign_list(&db, &list);
+	
+	tm_setResizeCallback(&resize);
+	tm_bindKey('q', &quit);
+	tm_bindKey('t', &test);
+	tm_bindKey('r', &run);
+	tm_bindKey('i', &up);
+	tm_bindKey('k', &down);
 }

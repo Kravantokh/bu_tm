@@ -45,6 +45,9 @@ void (*tm_any_char_callback)(char);
 
 int tm_run = 1;
 
+tm_color tm_cur_fg;
+tm_color tm_cur_bg;
+
 /* ** Struct manager functions ** */
 
 tm_colored_char tm_create_colored_char(tm_color fg, tm_color bg, char c){
@@ -85,12 +88,9 @@ tm_color tm_create_hex_color(char* val, uint8_t a){
 }
 
 void tm_print_colored_char(tm_colored_char c){
-	if(c.bg.channels.alpha > 0)
-		tm_reset_color();
-	else
-		tm_set_bg(c.bg);
+	tm_set_bg(c.bg);
 	tm_set_fg(c.fg);
-		printf("%c", c.ch);
+	putchar(c.ch);
 }
 
 void tm_print_colored_uchar(tm_colored_uchar c){
@@ -213,15 +213,27 @@ void tm_store_rgbBG(char* s, int red, int green, int blue){
 }
 
 void tm_reset_color(){
-	printf("\x1B[0m");
+	printf("\x1b[39m");
+	printf("\x1b[49m");
 }
 
 void tm_set_fg(tm_color color){
+	if(tm_cur_fg.raw == color.raw)
+		return;
+
 	printf("\x1b[38;2;%u;%u;%um", color.channels.red, color.channels.green, color.channels.blue);
+	tm_cur_fg = color;
 }
 
 void tm_set_bg(tm_color color){
-	printf("\x1b[48;2;%u;%u;%um", color.channels.red, color.channels.green, color.channels.blue);
+	if(tm_cur_bg.raw == color.raw)
+		return;
+
+	if(color.channels.alpha > 0)
+		printf("\x1b[49m");
+	else
+		printf("\x1b[48;2;%u;%u;%um", color.channels.red, color.channels.green, color.channels.blue);
+	tm_cur_bg = color;
 }
 
 char tm_getch(){

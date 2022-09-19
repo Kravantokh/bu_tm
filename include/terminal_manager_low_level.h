@@ -1,10 +1,10 @@
 /** \file terminal_manager_low_level.h
 * \brief A header if you don't want to use all the high level features provided by the library.
 */
-
 #ifndef __BU_TERMINAL_MANAGER_LOW__
 #define __BU_TERMINAL_MANAGER_LOW__
 
+#include "terminal_manager.h"
 
 /** A simple initialization function for the library.
 * Should always be run if you implement the main function.
