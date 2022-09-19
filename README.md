@@ -8,7 +8,6 @@ Consider generating and reading the docs!
 
 ## Prerequisites
  * GCC
- * Doxygen (if you want to generate the docs)
 
 ## Compilation
 Make sure to clone it with ``git clone --recursive https://github.com/Kravantokh/benutils_terminal_manager`` or else you may run into problems due to missing submodules!
