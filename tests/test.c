@@ -1,6 +1,4 @@
 #include "terminal_manager.h"
-#include "terminal_manager_low_level.h"
-#include "tm_elements.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "benutils/unicode.h"
