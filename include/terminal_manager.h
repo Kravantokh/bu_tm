@@ -60,8 +60,9 @@ typedef struct tm_colored_char tm_colored_char;
 typedef struct tm_colored_uchar tm_colored_uchar;
 
 
-
 extern tm_layout* tm_global_layout;
+extern bool tm_run;
+
 /******************* High level API *****************/
 
 /* If you let the library handle the terminal IO for you this is the API that you get: */
