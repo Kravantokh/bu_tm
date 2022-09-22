@@ -14,10 +14,14 @@ add_library(bu_terminal_manager STATIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src/tm_elements.c
 )
 
+add_compile_options(-ggdb3 -gstabs -O0 )#-fanalyzer -fsanitize=address)
+#add_link_options(-fanalyzer -fsanitize=address)
+
 target_link_libraries(bu_terminal_manager bu_unicode)
 
 add_executable(test
-	${CMAKE_CURRENT_SOURCE_DIR}/tests/test.c
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/high_level.c
 	)
+
 
 target_link_libraries(test bu_terminal_manager bu_unicode)

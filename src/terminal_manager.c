@@ -1,7 +1,3 @@
-#include "terminal_manager.h"
-#include "terminal_manager_low_level.h"
-#include "benutils/unicode.h"
-
 #ifdef __linux__
 	#include <sys/ioctl.h>
 	#include <unistd.h>
@@ -18,6 +14,8 @@
 
 #include <stdio.h>
 #include <locale.h>
+#include "terminal_manager.h"
+#include "benutils/unicode.h"
 
 #ifdef _WIN32
 	CONSOLE_SCREEN_BUFFER_INFO tm_csbi;
@@ -32,8 +30,7 @@
 	struct timeval tv;
 	fd_set rfds;
 #endif
-/* Global variable initializations */
-
+/********************** Global variable initializations ************************/
 
 #if TM_HANDLE_MAIN
 /* A pointer array for all the possible pressable ASCII keys.
@@ -43,12 +40,13 @@ void (*tm_resize_callback)(int, int);
 void (*tm_any_char_callback)(char);
 #endif
 
-int tm_run = 1;
 
-tm_color tm_cur_fg;
-tm_color tm_cur_bg;
+bool tm_run = 1;
 
-/* ** Struct manager functions ** */
+tm_color tm_cur_fg = (tm_color){0, 0, 0, 0};
+tm_color tm_cur_bg = (tm_color){0, 0, 0, 0};
+
+/*********************** Struct manager functions *************************/
 
 tm_colored_char tm_create_colored_char(tm_color fg, tm_color bg, char c){
 	tm_colored_char coloredChar = {fg, bg, c};
@@ -87,6 +85,8 @@ tm_color tm_create_hex_color(char* val, uint8_t a){
 	return color;
 }
 
+/********** Terminal interaction functions **********/
+
 void tm_print_colored_char(tm_colored_char c){
 	tm_set_bg(c.bg);
 	tm_set_fg(c.fg);
@@ -101,57 +101,8 @@ void tm_print_colored_uchar(tm_colored_uchar c){
 	tm_set_fg(c.fg);
 	print_uchar(c.ch);
 }
-/* Functions */
 
-/* C++ friendly library */
-#ifdef __cplusplus
-/*Character maps*/
-
-extern "C" {
-#endif
-
-void tm_init(){
-	#ifdef _WIN32
-		/* Get some infom and set handles */
-		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &tm_csbi);
-		tm_outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-		tm_inputHandle = GetStdHandle(STD_INPUT_HANDLE);
-		DWORD oldMode = 0;
-
-		/* Enable truecolor */
-		GetConsoleMode(tm_outputHandle, &oldMode);
-		newMode = oldMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-		SetConsoleMode(tm_outputHandle, newMode);
-		/* Prepare for unicode. */
-		setlocale(LC_ALL, "en_US");
-		system("chcp 65001");
-		tm_clear();
-		/* Set a font that supports unicode */
-		GetCurrentConsoleFontEx(tm_outputHandle, 0, &old_info);
-		new_info = old_info;
-		new_info.nFont = 0;
-		wcscpy(new_info.FaceName, L"NSimSun"); /*L"MS Gothic"*/
-		SetCurrentConsoleFontEx(tm_outputHandle, 0, &new_info);
-	#elif __linux__
-		tcgetattr( STDIN_FILENO, &oldt);
-		newt = oldt;
-		newt.c_lflag &= ~(ICANON | ECHO);
-		ioctl(STDOUT_FILENO, TIOCGWINSZ, &tm_winsize);
-		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
-	#endif
-}
-void tm_end(){
-	tm_reset_color();
-	tm_clear();
-	#ifdef _WIN32
-	SetConsoleMode(tm_outputHandle, oldMode);
-	SetCurrentConsoleFontEx(tm_outputHandle, 0, &old_info);
-	#elif __linux__
-	tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
-	#endif
-}
-
-void tm_getTerminalSize(int* rows, int* columns){
+void tm_get_terminal_size(int* rows, int* columns){
 	#ifdef _WIN32
 		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &tm_csbi);
 		*rows = tm_csbi.srWindow.Bottom - tm_csbi.srWindow.Top + 1;
@@ -166,50 +117,13 @@ void tm_getTerminalSize(int* rows, int* columns){
 void tm_move_cursor(int row, int column){
 	printf("\033[%d;%dH", row, column);
 }
+
 void tm_clear(){
 	#ifdef _WIN32
 		system("cls");
 	#elif __linux__
 		system("clear");
 	#endif
-}
-
-void tm_wait(unsigned int t){
-	#ifdef _WIN32
-		Sleep(1000 * t); /*from seconds to milliseconds*/
-	#elif __linux__
-		sleep(t);
-	#endif
-}
-
-void tm_waitus(unsigned int t){
-	#ifdef _WIN32
-		/* Apparently windows has no usleep function, so it has to be defined*/
-		HANDLE timer;
-		LARGE_INTEGER ft;
-
-		ft.QuadPart = -(10 * (__int64)t);
-
-		timer = CreateWaitableTimer(NULL, TRUE, NULL);
-		SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
-		WaitForSingleObject(timer, INFINITE);
-		CloseHandle(timer);
-	#elif __linux__
-		struct timeval time;
-		time.tv_sec = 0;
-		time.tv_usec = t;
-		/* Use select for wait, because usleep has been deprecated and nanosleep is too new*/
-		select(0, 0, 0, 0, &time);
-	#endif
-}
-
-/*Set rgb color for true color terminals*/
-void tm_store_rgbFG(char* s, int red, int green, int blue){
-	sprintf(s, "\x1b[38;2;%d;%d;%dm", red, green, blue);
-}
-
-void tm_store_rgbBG(char* s, int red, int green, int blue){
-	sprintf(s, "\x1b[48;2;%d;%d;%dm", red, green, blue);
 }
 
 void tm_reset_color(){
@@ -220,7 +134,6 @@ void tm_reset_color(){
 void tm_set_fg(tm_color color){
 	if(tm_cur_fg.raw == color.raw)
 		return;
-
 	printf("\x1b[38;2;%u;%u;%um", color.channels.red, color.channels.green, color.channels.blue);
 	tm_cur_fg = color;
 }
@@ -228,7 +141,6 @@ void tm_set_fg(tm_color color){
 void tm_set_bg(tm_color color){
 	if(tm_cur_bg.raw == color.raw)
 		return;
-
 	if(color.channels.alpha > 0)
 		printf("\x1b[49m");
 	else
@@ -266,6 +178,92 @@ char tm_getch(){
 		return c;
 	#endif
 }
+
+/*********************** Timing functions ********************/
+
+void tm_wait(unsigned int t){
+	#ifdef _WIN32
+		Sleep(1000 * t); /*from seconds to milliseconds*/
+	#elif __linux__
+		sleep(t);
+	#endif
+}
+
+void tm_waitus(unsigned int t){
+	#ifdef _WIN32
+		/* Apparently windows has no usleep function, so it has to be defined*/
+		HANDLE timer;
+		LARGE_INTEGER ft;
+
+		ft.QuadPart = -(10 * (__int64)t);
+
+		timer = CreateWaitableTimer(NULL, TRUE, NULL);
+		SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+		WaitForSingleObject(timer, INFINITE);
+		CloseHandle(timer);
+	#elif __linux__
+		struct timeval time;
+		time.tv_sec = 0;
+		time.tv_usec = t;
+		/* Use select for wait, because usleep has been deprecated and nanosleep is too new*/
+		select(0, 0, 0, 0, &time);
+	#endif
+}
+/*********************** Library init and end ***********************/
+
+void tm_init(){
+	#ifdef _WIN32
+		/* Get some infom and set handles */
+		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &tm_csbi);
+		tm_outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+		tm_inputHandle = GetStdHandle(STD_INPUT_HANDLE);
+		DWORD oldMode = 0;
+
+		/* Enable truecolor */
+		GetConsoleMode(tm_outputHandle, &oldMode);
+		newMode = oldMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		SetConsoleMode(tm_outputHandle, newMode);
+		/* Prepare for unicode. */
+		setlocale(LC_ALL, "en_US");
+		system("chcp 65001");
+		tm_clear();
+		/* Set a font that supports unicode */
+		GetCurrentConsoleFontEx(tm_outputHandle, 0, &old_info);
+		new_info = old_info;
+		new_info.nFont = 0;
+		wcscpy(new_info.FaceName, L"NSimSun"); /*L"MS Gothic"*/
+		SetCurrentConsoleFontEx(tm_outputHandle, 0, &new_info);
+	#elif __linux__
+		tcgetattr( STDIN_FILENO, &oldt);
+		newt = oldt;
+		newt.c_lflag &= ~(ICANON | ECHO);
+		ioctl(STDOUT_FILENO, TIOCGWINSZ, &tm_winsize);
+		tcsetattr( STDIN_FILENO, TCSANOW, &newt);
+	#endif
+}
+
+void tm_end(){
+	tm_reset_color();
+	tm_clear();
+	#ifdef _WIN32
+	SetConsoleMode(tm_outputHandle, oldMode);
+	SetCurrentConsoleFontEx(tm_outputHandle, 0, &old_info);
+	#elif __linux__
+	tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
+	#endif
+}
+
+
+
+void tm_store_rgbFG(char* s, int red, int green, int blue){
+	sprintf(s, "\x1b[38;2;%d;%d;%dm", red, green, blue);
+}
+
+void tm_store_rgbBG(char* s, int red, int green, int blue){
+	sprintf(s, "\x1b[48;2;%d;%d;%dm", red, green, blue);
+}
+
+
 
 
 #ifdef __cplusplus
@@ -315,7 +313,7 @@ int main(int argc, char* argv[]){
 		tm_previous_height = tm_height;
 
 	while(tm_run){
-		tm_waitus(100);
+		tm_waitus(1000);
 		tm_getTerminalSize(&tm_height, &tm_width);
 		if(tm_height != tm_previous_height || tm_width != tm_previous_width){
 			if(tm_resize_callback != 0)
@@ -326,8 +324,8 @@ int main(int argc, char* argv[]){
 		char c = tm_getch();
 		if(c != 0){
 			callCharCallback(c);
-			fflush(stdout);
 		}
+		fflush(stdout);
 	}
 	tm_end();
 	return 0;
@@ -337,17 +335,7 @@ int main(int argc, char* argv[]){
 
 
 #ifdef __cplusplus
-//Here I can finally use c++ comments, because it will not be visible for the c compiler and thus compatibility all the way back to c89 will be kept.
 
 } //end of extern C functions.
 
 #endif
-
-/* copy-paste template for cross-platform functions
-
-#ifdef _WIN32
-
-#elif __linux__
-
-#endif
-*/
