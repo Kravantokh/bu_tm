@@ -6,8 +6,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
-set(BUILD_EXAMPLES ON)
-
 project(bu_terminal_manager VERSION 1.0)
 
 
@@ -21,6 +19,8 @@ add_library(bu_terminal_manager STATIC
 
 target_link_libraries(bu_terminal_manager bu_unicode)
 
+
+# Should the examples be built?
 if(${BUILD_EXAMPLES})
 	add_executable(high_level_example ${CMAKE_CURRENT_SOURCE_DIR}/examples/high_level.c)
 	add_executable(mid_level_example ${CMAKE_CURRENT_SOURCE_DIR}/examples/mid_level.c)
