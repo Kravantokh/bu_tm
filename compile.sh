@@ -2,6 +2,7 @@
 
 #cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo
 cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=Debug
+#cmake -S . -B build -GNinja 
 cd build
 ninja
 cd ..
