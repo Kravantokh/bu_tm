@@ -24,14 +24,14 @@ void on_resize(){
 	tm_render_layout(&l);
 }
 
-void tm_initCall(){
+void tm_init_call(){
 	tm_bindKey('q', &quit);
 	tm_setResizeCallback(&on_resize);
 
 	db1 = tm_create_drawbox(0, 0, 10, 20);
 	db2 = tm_create_drawbox(11, 0, 10, 20);
 	
-	list1 = tm_create_list(3, false,
+	list1 = tm_create_list(3, 
 	(tm_color){200, 200, 200, 1}, (tm_color){125, 125, 125, 1},
 	(tm_color){255, 255, 255, 0}, (tm_color){50, 50, 50, 0},
 	&a, NULL, 

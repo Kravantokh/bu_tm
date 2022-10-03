@@ -22,30 +22,14 @@
  * Most of these structs are used in the mid and low level APIs anyways, but
  * a short description of their roles will pe provided here. */
 
+typedef struct _tm_composable tm_composable;
 
+/* Vertical and horizontal divisions */
+typedef struct _tm_vdiv tm_vdiv;
+typedef struct _tm_hdiv tm_hdiv;
 
-/* Drawbox - technically a fancy buffer which represents an area of the terminal in memory.
- * This is the most important element of the high level API.
- * Elements such as lists can be associated to a drawbox.
- *
- * This association means that from that point on the drawbox's contents will be filled with
- * the associated element.
- *
- * Selective refreshing works automatically with all the built-in element types
- *
- * See tm_create_drawbox for creating one. */
-typedef struct _tm_drawbox tm_drawbox;
-
-/* A struct which represents a list. This can be assigned to a drawbox in order to make it a list.
- * It can run a function on every one of its elements. It can also highlight the focused element.
- * See tm_create_list for creating one.
- * Simple text can be drawn as an unfocusable list of a single element. */
- typedef struct _tm_list tm_list;
-
-/* Representation of the layout of the app.
- * This is used to automatically switch between UI elements. */
-typedef struct _tm_layout tm_layout;
-typedef struct _tm_layout_element tm_layout_element;
+/* A box filled with a specified character */
+typedef struct _tm_debug_box tm_debug_box;
 
 /* A union that represents a color.*/
 typedef union tm_color tm_color;
@@ -54,14 +38,37 @@ typedef union tm_color tm_color;
  * Any non-zero value as the alpha channel will draw the default background color which is transparent if you have a transparent terminal. */
 typedef struct tm_colored_char tm_colored_char;
 
-
 /* A colored unicode char. It has foreground and background color. It also supports transparency (for the background).
  * Any non-zero value as the alpha channel will draw the default background color which is transparent if you have a transparent terminal. */
 typedef struct tm_colored_uchar tm_colored_uchar;
 
-
-extern tm_layout* tm_global_layout;
 extern bool tm_run;
+extern tm_composable* tm_root;
+
+/******************** Struct generator functions *********************/
+
+/* Division generators.
+ * Pass two composable which should be in the divisions.
+ * The first argument is the left/top composable and the second is the right/bottom*/
+tm_vdiv* tm_make_vdiv(tm_composable*, tm_composable*);
+tm_hdiv* tm_make_hdiv(tm_composable*, tm_composable*);
+
+/* Debugbox generator. 
+ * Pass it the character you want to fill it with */
+tm_debug_box* tm_make_debug_box(char c);
+
+/****************** Composition related functions ********************/
+/* Set the active root to new_root.
+ * Beware! If you did not create new_root with tm_make_root make sure that it doesn't have any NULL pointers (except for focus and lose_focus) or else you will get a segfault.
+ * It is assumed that the root has all of its functions defined. */
+void tm_set_root(tm_composable* new_root);
+
+/* A function that renders a composeable and its full component tree */
+void tm_render(tm_composable*);
+
+/* Compose two UI elements */
+tm_composable* tm_compose(tm_composable* element1, tm_composable* element2);
+
 
 /******************* High level API *****************/
 
@@ -75,7 +82,7 @@ extern bool tm_run;
  *	- Assign callbacls 
  *	- Initialize values
  *	- etc. */
-void tm_initCall();
+void tm_init_call();
 
 /* Bind keys to an ASCII value. 
  * Your function must have the signature void(void) to be bindable here.
@@ -84,11 +91,11 @@ void tm_bindKey(const char character, void(*function)(void));
 
 /* Bind a callback for every key.
  * When any key is pressed the given function will be called and it will be passed the pressed ASCII character. */
-void tm_bindToAnyKeypress(void(*function)(char));
-
+void tm_bind_any_keypress(void(*function)(char));
 /* Set a callback for when the terminal is resized.
  * To the given function the new number of rows and columns is passed . */
-void tm_setResizeCallback(void(*function)(int, int));
+void tm_set_resize_callback(void(*function)(uint16_t new_width, uint16_t new_height));
+
 
 /* Once this is called the main loop will exit and thus the program will terminate */
 void tm_stop();
@@ -96,67 +103,12 @@ void tm_stop();
 #endif
 
 
-/* Create a layout.
- * A layout holds all the drawboxes shown on the screen.
- * With the help of the layout manager it can be used to manage navigation between elements. */
-tm_layout tm_create_layout(uint8_t width, uint8_t height);
-
-/* Sets an element in a layout to the given element (drawbox).
- * x is horizontal and y is vertical (it increases downwards). Both start from 0. */
-void tm_set_layout_element(tm_layout* layout, uint8_t x_index, uint8_t y_index, tm_drawbox* const element, float width, float height);
-
-/* Set the global layout (layout shown on the screen) to a given layout*/
-void tm_activate_layout(tm_layout* const layout);
-
-/* Render a given layout to the screen */
-void tm_update_layout(tm_layout* layout);
-
-/* Delete a layout
- * Frees the associated memory. No need for more explicit manual cleanup.*/
-void tm_delete_layout(tm_layout layout);
-
-
- /* Create a drawbox. */
-tm_drawbox tm_create_drawbox(uint16_t xloc, uint16_t yloc, uint16_t xsize, uint16_t ysize);
-
-/* Ceate a list made up of the given entries and their associated functions.
- * Put your entries and their functions of signature void(void) in place of the ... when calling this function.
- * Pay attention to specify the correct length as the first argument (It must be exactly the number of entries)
- * otherwise the call may result in undefined behaviour (a segfault in the best case). 
- * The length specifies the number of entry and function pairs.
- * If you do not want to associate a function to an entry you may pass null.
- * Also see the example high_level_api.c */
-tm_list tm_create_list(uint16_t length, bool focuseable, tm_color fg, tm_color bg, tm_color ffg, tm_color fbg, ...);
-
-/* Assign a list to a drawbox. After using this that drawbox will become the given list. */
-void tm_assign_list(tm_drawbox* db, tm_list* data);
-
 /* Create a color from either rgba values or a hex color (of format #number or just number for rgb and a for alpha) */
 tm_color tm_create_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 tm_color tm_create_hex_color(char* s, uint8_t a);
 
 /********************* Mid level API **************************/
 /* Most of these functions (and structs) are not necessary to use if you do not descend from the high level api to the mid level. */
-
-/* Draw a drwabox's contents to the screen*/
-void tm_render(tm_drawbox* db);
-
-/* Refresh the internal memory of a drawbox.
- * To draw to the screen use tm_render instead. */
-void tm_draw(tm_drawbox* drawbox);
-
-/* Assign a draw function and drawing data to a drawbox.
- * Unless you are implementing a custom element you should have nothing to do with this. */
-void tm_assign(tm_drawbox* db,  void* data, void (*draw)(tm_drawbox*),
-	void (*on_focus)(tm_drawbox*),	void (*on_down)(tm_drawbox*),
-	void (*on_up)(tm_drawbox*),   	void (*on_left)(tm_drawbox*),
-	void (*on_right)(tm_drawbox*),	void (*on_run)(tm_drawbox*),
-	void (*focus_lost)(tm_drawbox*)
-);
-
-/* Function used to resize drawboxes (No need to use this if you use the layout manager) */
-void tm_resize_drawbox(tm_drawbox*, uint16_t newx, uint16_t newy);
-
 
 /* Create a unicode or ASCII colored character respectively */
 tm_colored_char tm_create_colored_char(tm_color fg, tm_color bg, char c);
@@ -194,77 +146,64 @@ struct tm_colored_uchar{
 	char* ch;
 };
 
+/* Some macro abuse for more "readability" */
+#pragma push_macro("self")
+#define self tm_composable*
+struct _tm_composable{
+	uint16_t x, y; /* Position */
+	uint16_t w, h; /* Dimensions */
 
-/* Representation of a layout. */
-struct _tm_layout{
-	uint8_t width;
-	uint8_t height;
-	/* 2D array indexed as 1D*/
-	tm_layout_element* elements;
+	tm_composable* inner; /* The element which is composed with this */
+	/* Partial of full redraw depending on the module. Now size and position updating. */
+	void (*render)(self);
+	/* Full redraw and dimensions and position updating */
+	void (*rerender)(self);
+
+	void (*focus)(self);
+	void (*lose_focus)(self);
+
+	bool (*nav_up)(self);
+	bool (*nav_down)(self);
+	bool (*nav_left)(self);
+	bool (*nav_right)(self);
+	bool (*nav_sel)(self);
+
+	bool (*focus_up)(self);
+	bool (*focus_down)(self);
+	bool (*focus_left)(self);
+	bool (*focus_right)(self);
 };
 
-struct _tm_layout_element{
-	tm_drawbox* db;
-	// Relative dimensions compared to the whole window.
-	float width;
-	float height;
+#pragma pop_macro("self")
+
+/* Vertical division */
+struct _tm_vdiv {
+	tm_composable composable;
+
+	/* This inner is the second subdivision. The first is inside the field 'inner'
+	 * inside the composable */
+	tm_composable* inner;
+	uint8_t focused_element; /* This is 1 if the first inner is focused and 2 if the inner inside the composable. (left, right) Otherwise 0. */
 };
 
-// This is an element of a drawbox. The modified boolean is for selective redrawing. Normally you shouldn't have anything to do with this. It is meant to be abstracted away by higher level functions.
-struct tm_char_drawbox_field{
-	tm_colored_char cch;
-	bool modified;
-};
-
-// Drawbox. Technically a fancy buffer, which stores characters and their colors along with its dimensions and position on the screen. It also stores some functions which are used for refreshing its state and the state of the program.
-struct _tm_drawbox{
-	// Position
-	uint16_t x, y;
-	// Dimensions
-	uint16_t x_size, y_size;
-	// Contents (A 2D array of fields stored as a 1D array, indexed with x + y*x_size)
+/* Horizontal division */
+struct _tm_hdiv{
+	tm_composable composable;
 	
-	struct tm_char_drawbox_field* contents;
-	// Extra data used by the drawing function
-	void* data;
-	
-	// Drawing function
-	void (*draw)(struct _tm_drawbox* self);
-	// Focus action
-	void (*on_focus)(struct _tm_drawbox* self);
-	// Navigation down action
-	void (*on_down)(struct _tm_drawbox* self);
-	// Navigation up action
-	void (*on_up)(struct _tm_drawbox* self);
-	// Navigation left action
-	void (*on_left)(struct _tm_drawbox* self);
-	// Navigation right action
-	void (*on_right)(struct _tm_drawbox* self);
-	// Main action (Called when enter is pressed)
-	void (*on_run)(struct _tm_drawbox* self);
-	// Action on focus lost
-	void (*focus_lost)(struct _tm_drawbox* self);
-
+	tm_composable* inner; /* This inner is the second subdivision. The first is inside the field 'inner' inside the composable */
+	uint8_t focused_element; /* This is 1 if the first inner is focused and 2 if the inner inside the composable. (up, down) Otherwise 0. */
 };
 
+struct _tm_debug_box{
+	tm_composable composable;
+	char c;
+};
 
 struct _tm_list{
-	// Number of entries
+	tm_composable composable;
 	uint16_t length;
-	// Pointer to the entries.
-	char** entries;
-	// Function pointers to the actions performed on every option.
-	void (**f)(void);
-	// Focused elements' bg and fg are automatically inverted
-	bool focuseable;
-	uint16_t focused_element;
-	// Normal colors
-	tm_color fg;
-	tm_color bg;
-	// Focused colors
-	tm_color ffg;
-	tm_color fbg;
-
+	char** contents;
+	void (**functions)(void); /* The function for when an option is selected and launched*/
 };
 
 /******************************* Low level API ***************************************/
@@ -299,7 +238,7 @@ void tm_move_cursor(int row, int column);
 
 /* Find out the size of the terminal.
  * It will write the results into the given variables */
-void tm_get_terminal_size(int* rows, int* columns);
+void tm_get_terminal_size(uint16_t* rows, uint16_t* columns);
 
 /* Clear the terminal. */
 void tm_clear();

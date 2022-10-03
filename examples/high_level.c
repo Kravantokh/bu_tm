@@ -1,11 +1,5 @@
 #include "terminal_manager.h"
 
-tm_list list1;
-
-tm_drawbox db1;
-tm_drawbox db2;
-
-tm_layout l;
 char a[] = "asd";
 char b[] = "Hello";
 char c[] = "there!";
@@ -18,39 +12,50 @@ void quit(){
 	tm_run = false;
 }
 
-void on_resize(){
-	tm_clear();
-	tm_update_layout(&l);
-	tm_render_layout(&l);
+void up(){
+	tm_root->focus_up(tm_root);
+}
+void down(){
+	tm_root->focus_down(tm_root);
+}
+void left(){
+	tm_root->focus_left(tm_root);
+}
+void right(){
+	tm_root->focus_right(tm_root);
 }
 
-void tm_initCall(){
+void on_resize(uint16_t w, uint16_t h){
+	tm_clear();
+	tm_root->rerender(tm_root);
+}
+
+void pr(char c){
+	printf("%d\n", c);
+}
+
+void tm_init_call(){
 	tm_bindKey('q', &quit);
-	tm_setResizeCallback(&on_resize);
-
-	db1 = tm_create_drawbox(0, 0, 10, 20);
-	db2 = tm_create_drawbox(11, 0, 10, 20);
-	
-	list1 = tm_create_list(3, false,
-	(tm_color){200, 200, 200, 1}, (tm_color){125, 125, 125, 1},
-	(tm_color){255, 255, 255, 0}, (tm_color){50, 50, 50, 0},
-	&a, NULL, 
-	&b, &o1,
-	&c, NULL);
-	
-	tm_assign_list(&db1, &list1);
-	tm_assign_list(&db2, &list1);
-
-	tm_resize_drawbox(&db1, 20, 30);
-
-	l = tm_create_layout(2, 1);
-
-	tm_set_layout_element(&l, 0, 0, &db2, 0.5, 1);
-	tm_set_layout_element(&l, 1, 0, &db1, 0.5, 1);
-
-	tm_activate_layout(&l);
-	
-	tm_update_layout(&l);
-	tm_render_layout(&l);
-	
+	tm_set_resize_callback(&on_resize);
+	/* tm_bind_any_keypress(&pr); */
+	tm_bindKey('k', &up);
+	tm_bindKey('j', &down);
+	tm_bindKey('l', &right);
+	tm_bindKey('h', &left);
+	tm_set_root(
+			(void*)tm_make_vdiv(
+				(void*)tm_make_vdiv(
+					(void*)tm_make_debug_box('3'),
+					(void*)tm_make_vdiv(
+						(void*)tm_make_debug_box('1'),
+						(void*)tm_make_debug_box('2')
+					)
+				),
+				(void*)tm_make_debug_box('@')
+			)
+	);
+	tm_clear();
+	tm_get_terminal_size(&tm_root->w, &tm_root->h);
+	tm_root->rerender(tm_root);
+	tm_root->render(tm_root);
 }
