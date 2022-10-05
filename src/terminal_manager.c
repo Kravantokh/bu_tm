@@ -357,7 +357,8 @@ tm_vdiv* tm_make_vdiv(tm_composable* e1, tm_composable* e2){
 		BU_ERR_FUNC("Memory could not be allocated.");
 		return NULL;
 	}
-
+	
+	vdiv->focused_element = 0;
 	vdiv->inner = e1;
 	vdiv->composable.inner = e2;
 	vdiv->composable.w = 0;

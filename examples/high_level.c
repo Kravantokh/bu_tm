@@ -27,6 +27,8 @@ void right(){
 
 void on_resize(uint16_t w, uint16_t h){
 	tm_clear();
+	tm_root->w = w;
+	tm_root->h = h;
 	tm_root->rerender(tm_root);
 }
 
@@ -46,10 +48,11 @@ void tm_init_call(){
 			(void*)tm_make_vdiv(
 				(void*)tm_make_vdiv(
 					(void*)tm_make_debug_box('3'),
-					(void*)tm_make_vdiv(
+					/*(void*)tm_make_vdiv(
 						(void*)tm_make_debug_box('1'),
 						(void*)tm_make_debug_box('2')
-					)
+					)*/
+					(void*)tm_make_debug_box('4')
 				),
 				(void*)tm_make_debug_box('@')
 			)
